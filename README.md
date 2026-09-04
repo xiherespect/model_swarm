@@ -79,3 +79,19 @@ If Model Swarms is helpful to you:
   year={2024}
 }
 ```
+
+由于gpu限制，模型替换为qwen1.5b
+ Download the Qwen2.5-1.5B base model plus the 10 released Tulu v2 LoRA expert adapters from:
+
+```text
+https://huggingface.co/TaoJiangCN/qwen2.5-1.5b-tulu-v2-lora-experts
+```
+
+With `huggingface-hub` installed, one direct way to fetch the weights is:
+
+```bash
+huggingface-cli download TaoJiangCN/qwen2.5-1.5b-tulu-v2-lora-experts \
+  --local-dir models/qwen25-1.5b-lora-experts
+```
+
+

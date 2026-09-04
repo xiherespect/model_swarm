@@ -11,6 +11,7 @@ from googleapiclient import discovery
 from sklearn.metrics import accuracy_score
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from safetensors.torch import load_file, save_file
+from peft import PeftModel
 import random
 import vertexai
 import warnings
@@ -215,20 +216,23 @@ def batch_generate_chat_template(model, tokenizer, prompts, gpu_id, batch_size=1
 def batch_generate(model, tokenizer, prompts, gpu_id, batch_size=10, max_new_tokens=10):
     num_batches = math.ceil(len(prompts) / batch_size)
     outputs = []
+    # left padding + explicit attention mask: with right padding and pad==eos the mask
+    # cannot be inferred, and pad tokens pollute generation for shorter prompts
+    tokenizer.padding_side = "left"
     for i in tqdm(range(num_batches)):
         start_idx = i * batch_size
         end_idx = min((i + 1) * batch_size, len(prompts))
         batch_prompts = prompts[start_idx:end_idx]
 
-        input_ids = tokenizer(batch_prompts, return_tensors="pt", padding=True).input_ids.to(f"cuda:{gpu_id}")
-        output = model.generate(input_ids, max_new_tokens=max_new_tokens, do_sample = False)
+        enc = tokenizer(batch_prompts, return_tensors="pt", padding=True).to(f"cuda:{gpu_id}")
+        output = model.generate(input_ids=enc.input_ids, attention_mask=enc.attention_mask, max_new_tokens=max_new_tokens, do_sample = False)
 
         for j in range(len(output)):
-            outputs.append(tokenizer.decode(output[j][len(input_ids[j]):], skip_special_tokens=True).strip())
-        
-        del input_ids, output
+            outputs.append(tokenizer.decode(output[j][enc.input_ids.shape[1]:], skip_special_tokens=True).strip())
+
+        del enc, output
         torch.cuda.empty_cache()
-    
+
     return outputs
 
 # given a model, evaluate it on the utility function and return the scalar value
@@ -242,7 +246,10 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
     only_one_or_two = ONLY_ONE_OR_TWO
     try:
         model = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=torch.float16)
-        model.load_adapter(model_path)
+        # transformers 4.46 load_adapter silently drops LoRA weights whose keys carry the
+        # base_model.model.* prefix; load via peft and merge so the adapter is always applied
+        model = PeftModel.from_pretrained(model, model_path)
+        model = model.merge_and_unload()
         model.to(f"cuda:{gpu_id}")
         tokenizer = AutoTokenizer.from_pretrained(base_model)
     except:
@@ -532,7 +539,10 @@ def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/g
 
     try:
         model = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=torch.float16)
-        model.load_adapter(model_path)
+        # transformers 4.46 load_adapter silently drops LoRA weights whose keys carry the
+        # base_model.model.* prefix; load via peft and merge so the adapter is always applied
+        model = PeftModel.from_pretrained(model, model_path)
+        model = model.merge_and_unload()
         model.to(f"cuda:{gpu_id}")
         tokenizer = AutoTokenizer.from_pretrained(base_model)
     except:
@@ -684,7 +694,7 @@ def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/g
 
         # hard-defined batch_size for exact match questions, reduce if OOM
         BATCH_SIZE = 10
-        if dataset == "nlgraph" or "nlgraph_mini":
+        if dataset == "nlgraph" or dataset == "nlgraph_mini":
             BATCH_SIZE = 5
 
         MAX_NEW_TOKENS = 10
