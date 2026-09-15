@@ -7,7 +7,10 @@ import reward_modeling
 from tqdm import tqdm
 from datasets import load_dataset
 from tenacity import retry, wait_random_exponential, stop_after_attempt
-from googleapiclient import discovery
+try:  # AbstainQA objective-4（人类偏好打分）才需要；环境没有则惰性降级
+    from googleapiclient import discovery
+except ImportError:
+    discovery = None
 from sklearn.metrics import accuracy_score
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from safetensors.torch import load_file, save_file
@@ -236,7 +239,7 @@ def batch_generate(model, tokenizer, prompts, gpu_id, batch_size=10, max_new_tok
     return outputs
 
 # given a model, evaluate it on the utility function and return the scalar value
-def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", save_dev_flag = False, only_one_or_two = None, skip_flag = False):
+def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", save_dev_flag = False, only_one_or_two = None, skip_flag = False, subset_size = None, subset_start = None):
 
     if skip_flag:
         return None
@@ -253,11 +256,17 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
         model.to(f"cuda:{gpu_id}")
         tokenizer = AutoTokenizer.from_pretrained(base_model)
     except:
-        del model
-        del tokenizer
-        model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16)
+        try:  # 先用本地缓存离线重试基模（HF 网络抖动时 from_pretrained 会抛错, 勿跳进 adapter 回退陷阱）
+            del model
+            del tokenizer
+        except NameError:
+            pass
+        model = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=torch.float16,
+                                                     local_files_only=True)
+        model = PeftModel.from_pretrained(model, model_path)
+        model = model.merge_and_unload()
         model.to(f"cuda:{gpu_id}")
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(base_model, local_files_only=True)
     tokenizer.pad_token = tokenizer.eos_token
 
     # prompt = "What is the capital of France? Answer:"
@@ -267,7 +276,7 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
 
     # objective 4: human interests
     if eval_type == "human":
-        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"]
+        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"][(subset_start or 0):((subset_start or 0) + subset_size) if subset_size else None]
         scores = []
 
         # hard-defined batch_size for human interests objective
@@ -304,7 +313,7 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
             warnings.warn("Reward modeling evaluation should be done on the reward modeling dataset. We provide by default data/eval/rm.json for this purpose.")
             warnings.warn("If you are bringing your own dataset, follow the format in data/eval/rm.json.")
 
-        val_data = json.load(open("data/eval/" + dataset + ".json"))["dev"]
+        val_data = json.load(open("data/eval/" + dataset + ".json"))["dev"][(subset_start or 0):((subset_start or 0) + subset_size) if subset_size else None]
 
         # hard-defined batch_size for reward modeling objective, reduce if OOM
         BATCH_SIZE = 10
@@ -349,9 +358,9 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
         eval_datasets = multitask_domain_dataset_dict[dataset][:2]
         for eval_dataset in eval_datasets:
             if eval_dataset in ["nlgraph", "gsm8k", "xstreet_ar", "xstreet_es"]:
-                per_dataset_scores.append(evaluate(model_path, "exact_match", eval_dataset, gpu_id, save_dev_flag = True))
+                per_dataset_scores.append(evaluate(model_path, "exact_match", eval_dataset, gpu_id, base_model = base_model, save_dev_flag = True, subset_size = subset_size))
             else:
-                per_dataset_scores.append(evaluate(model_path, "multiple_choice", eval_dataset, gpu_id, save_dev_flag = True))
+                per_dataset_scores.append(evaluate(model_path, "multiple_choice", eval_dataset, gpu_id, base_model = base_model, save_dev_flag = True, subset_size = subset_size))
         assert len(per_dataset_scores) == 2
         if sum(per_dataset_scores) == 0:
             per_dataset_scores = [0.01, 0.01] # dummy scores
@@ -365,7 +374,7 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
 
     # task 1: single task, multiple choice questions
     elif eval_type == "multiple_choice":
-        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"]
+        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"][(subset_start or 0):((subset_start or 0) + subset_size) if subset_size else None]
         golds = []
         preds = []
         global ICL_PROMPT
@@ -407,7 +416,7 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
 
     # task 1: single task, exact match questions
     elif eval_type == "exact_match":
-        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"]
+        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"][(subset_start or 0):((subset_start or 0) + subset_size) if subset_size else None]
         scores = [] # could be 0/1 binary, could be continuous scores
 
         prompts = []
@@ -449,7 +458,7 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
 
     # task 1: single task, RealToxicityPrompts special case
     elif eval_type == "external_api":
-        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"]
+        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"][(subset_start or 0):((subset_start or 0) + subset_size) if subset_size else None]
         scores = [] # could be 0/1 binary, could be continuous scores
 
         prompts = []
@@ -482,7 +491,7 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
 
     # task 1: single task, AbstainQA special case
     elif eval_type == "AbstainQA":
-        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"]
+        eval_data = json.load(open("data/eval/" + dataset + ".json"))["dev"][(subset_start or 0):((subset_start or 0) + subset_size) if subset_size else None]
         golds = []
         preds = []
 
@@ -546,11 +555,17 @@ def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/g
         model.to(f"cuda:{gpu_id}")
         tokenizer = AutoTokenizer.from_pretrained(base_model)
     except:
-        del model
-        del tokenizer
-        model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16)
+        try:  # 先用本地缓存离线重试基模（HF 网络抖动时 from_pretrained 会抛错, 勿跳进 adapter 回退陷阱）
+            del model
+            del tokenizer
+        except NameError:
+            pass
+        model = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=torch.float16,
+                                                     local_files_only=True)
+        model = PeftModel.from_pretrained(model, model_path)
+        model = model.merge_and_unload()
         model.to(f"cuda:{gpu_id}")
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(base_model, local_files_only=True)
     tokenizer.pad_token = tokenizer.eos_token
 
     # prompt = "What is the capital of France? Answer:"
@@ -630,7 +645,7 @@ def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/g
         eval_datasets = multitask_domain_dataset_dict[dataset]
         for eval_dataset in eval_datasets:
             # default multi-task evaluation sets are all MC
-            per_dataset_scores.append(evaluate_test(model_path, "multiple_choice", eval_dataset, gpu_id))
+            per_dataset_scores.append(evaluate_test(model_path, "multiple_choice", eval_dataset, gpu_id, base_model = base_model))
         assert len(per_dataset_scores) == 2
         if sum(per_dataset_scores) == 0:
             per_dataset_scores = [0.01, 0.01] # dummy scores

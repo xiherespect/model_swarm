@@ -1,0 +1,7 @@
+{
+ "flan0.5+oasst0.5 (\u4e2d\u70b9)": 0.655,
+ "flan0.7+oasst0.3": 0.65,
+ "flan0.6+oasst0.4+cot-0.2": 0.67,
+ "flan0.5+oasst0.4+cot-0.1": 0.66,
+ "\u5bf9\u7167: flan \u5355\u72ec 1.0": 0.555
+}

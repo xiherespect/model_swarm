@@ -655,11 +655,16 @@ if __name__ == "__main__":
             os.rename(os.path.join("search", search_pass_name, "particle_"+str(i), "now", "scores_dev.json"), os.path.join("search", search_pass_name, "particle_"+str(i), "now", "scores.json"))
 
     final_metrics = overall_metrics(search_pass_name, eval_type)
+    # --starting_test_set_eval 0 时 starting_* 键不存在，用 .get 防止 KeyError
+    # （此前在此崩溃：所有有价值输出已写完，只损失结束标记）
     dev_final_metrics = {
-        "starting_top-k_ensemble_dev_accuracy": final_metrics["starting_top-k_ensemble_test_accuracy"],
-        "ending_top-k_ensemble_dev_accuracy": final_metrics["ending_top-k_ensemble_test_accuracy"]
+        "starting_top-k_ensemble_dev_accuracy": final_metrics.get("starting_top-k_ensemble_test_accuracy"),
+        "ending_top-k_ensemble_dev_accuracy": final_metrics.get("ending_top-k_ensemble_test_accuracy")
     }
-    wandb.log(dev_final_metrics)
+    try:
+        wandb.log(dev_final_metrics)
+    except Exception:
+        pass
     log_with_flush("final ensemble metrics for dev: "+str(dev_final_metrics))
 
     if clean_up_on_end:

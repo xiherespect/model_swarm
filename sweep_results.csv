@@ -1,0 +1,10 @@
+run,status,dev_start,dev_end,test_end,improve_count,inertia,cog,soc,repel,step
+hellaswag_0905_r02,done,,0.715,0.629,6,0.1,0.2,0.3,0.1,1.0
+hellaswag_0905_r03,done,,0.715,0.624,5,0.3,0.3,0.2,0.01,0.9
+hellaswag_0905_r05,done,,0.715,0.625,6,0.2,0.1,0.2,0.01,0.9
+hellaswag_0905_r01,done,,0.705,0.639,4,0.3,0.3,0.3,0.1,0.8
+hellaswag_0905_r04,done,,0.69,0.629,3,0.3,0.2,0.2,0.05,0.8
+hellaswag_0905_r06,done,,0.685,0.62,3,0.2,0.1,0.6,0.1,0.8
+hellaswag_0905_r07,done,,0.65,0.582,3,0.2,0.4,0.2,0.01,0.9
+hellaswag_0905_r08,done,,0.65,0.585,3,0.3,0.4,0.2,0.01,0.7
+hellaswag_0905_r09,unfinished,,,,,0.3,0.1,0.5,0.01,0.8
