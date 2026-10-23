@@ -1,0 +1,481 @@
+{
+  "scoring_version": "strict_v1",
+  "protocol_metadata": {
+    "mc": "explicit_label_or_unique_complete_option_v1",
+    "exact": "partial_numeric_and_nlgraph_boolean_v1",
+    "exact_supported_datasets": [
+      "gsm8k",
+      "nlgraph",
+      "nlgraph_mini"
+    ],
+    "exact_other_datasets": "legacy_substring_unchanged",
+    "slice": "nonempty_in_bounds_v1",
+    "aggregation": "nonnegative_pair_harmonic_zero_is_zero_v1"
+  },
+  "split_protocol_version": "slice_v1",
+  "aggregation_version": "mean_v1",
+  "dataset": "nlgraph",
+  "eval_type": "exact_match",
+  "split": "dev",
+  "subset_start": 0,
+  "subset_stop": 50,
+  "base_model": "/data/lvliping/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306",
+  "adapter": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c0.75/adapter",
+  "n_samples": 50,
+  "do_sample": false,
+  "max_new_tokens": 10,
+  "batch_size": 5,
+  "records": [
+    {
+      "index": 0,
+      "question_sha256": "ce0bf7bb60891e94571d60f84ce06388e22cca22ba685e08cfa79e149e1cef25",
+      "prompt_sha256": "66c9693cf380b90956ae435e0082bc0e7bf63caf96c55cba81a5e47089ab44de",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "11",
+      "score": 0.0
+    },
+    {
+      "index": 1,
+      "question_sha256": "20800dddbd34c896efe2a380c183936ef2a89b4dfb1f90177de47c7ea20f19e8",
+      "prompt_sha256": "9f43bd87ee444f15a019fe6ed6b792835d0fbdb866e6696eb8eb818ff765e4e1",
+      "raw_generation": "No. \n\nExplanation: Node 11 is",
+      "parsed_answer": null,
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 2,
+      "question_sha256": "0858594879a34db12b47f6949fa0f0bc7dab0d370967d177d8a949e1f07f4553",
+      "prompt_sha256": "fc60b0a1bae224a66dcd41fc0f9abb90221b473fa9c29e5298dc410cf5f5795f",
+      "raw_generation": "3.",
+      "parsed_answer": "3",
+      "gold": "10",
+      "score": 0.0
+    },
+    {
+      "index": 3,
+      "question_sha256": "39d32c07a26711d9458cf4968f04faf62392edb56b65e993bb922a9046b549e3",
+      "prompt_sha256": "2ee6079e65ebd14d0d2fe281db87e83ce3020d47af62cb1fc1a651c4aae059c2",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 4,
+      "question_sha256": "9cb5ff886947260cf3ed10a74772c6e4770b34261eac42285ce72884edd44fc9",
+      "prompt_sha256": "1d364a777a3b2a1673293ad8de5feb8b7754ca16431fa689ef4923d7fa4a2fe9",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 5,
+      "question_sha256": "50c5bcfcb2a668c3f9b83ccf44f6bd26c4172709ec8474aa285f17eb4738c5e0",
+      "prompt_sha256": "c7fd54bd45d344cae43f6e21a408a43b8c6101a428bb8aad65c0a6e4f396cec8",
+      "raw_generation": "7.",
+      "parsed_answer": "7",
+      "gold": "33",
+      "score": 0.0
+    },
+    {
+      "index": 6,
+      "question_sha256": "da60da3b16164fdf5f351c115e3a47313508afdbe4aa517d9a216169d866bef1",
+      "prompt_sha256": "d65de580d552c62419d56815c1c8dde490851749adca89be39b440eed1279f29",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "2",
+      "score": 0.0
+    },
+    {
+      "index": 7,
+      "question_sha256": "11a8d5a6e1dddc06d0baeeb7f39c2680b5d5858eaee39b512e3d6d65030ee378",
+      "prompt_sha256": "0f6e60e5114795dd475f1472573812b7c78350f675e32bf7001d5d3c373ca6ae",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 8,
+      "question_sha256": "2758e988965fcdf008afa4dde4b7d0eef3d3ae0f3507a5367d63c380fa1db40a",
+      "prompt_sha256": "4127652e9694f21704fe921c1b6056ed0fa7fda3f32a2aaddb48a00697bc1283",
+      "raw_generation": "No. \n\nExplanation: There is no direct connection",
+      "parsed_answer": null,
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 9,
+      "question_sha256": "ccfdb06f6447574b2ff4db105ac1df6bbc00eaea497aacbf42b945ba9137c5b4",
+      "prompt_sha256": "6afcb1c3245953b3d276f1eeda7df9191bc96c7eb29ada59088bc6f897e81c00",
+      "raw_generation": "7.",
+      "parsed_answer": "7",
+      "gold": "3",
+      "score": 0.0
+    },
+    {
+      "index": 10,
+      "question_sha256": "8442b286ce1fdbd21734d1a8c9cf4f86ed7a5f916e91006ad66ad4e6b5d2a456",
+      "prompt_sha256": "8818a01bf4196489300481a5fe7fa8ec79accd81a4b820d39de1665b433a3a43",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 11,
+      "question_sha256": "95997ded31f9f289d2e71b0c19dc3ddb18db616d870d701ab4e213294b8c2b5c",
+      "prompt_sha256": "5244432664d0239f4f01d75d59bb3e43d98a884578ae9aa296f97a9e7502246f",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 12,
+      "question_sha256": "dd91d97ec6aa4bbde9b0d4b4a156cae7a0975084049faafa7cb367f42d2f8796",
+      "prompt_sha256": "66251f6519574afdf322a83f26a79f595391899f2791cacd139a1cc768456e10",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 13,
+      "question_sha256": "0aff4ee410601ea514e20eb3fa915b36b80452376bce2df88fa6b33e5dcd2db8",
+      "prompt_sha256": "1d3268747d8f7e78f821ee2bc22034c346bf811b8a65d9de1a63d63b4bb4244d",
+      "raw_generation": "No. \n\nExplanation: Node 1 is connected",
+      "parsed_answer": null,
+      "gold": "No",
+      "score": 0.0
+    },
+    {
+      "index": 14,
+      "question_sha256": "03efb017f9687e040519c599d59f9eb33360b09edb374423c265109e752962ca",
+      "prompt_sha256": "2658d2fa6a129aaa18ba7a263304a75dd75ee5e02a630856542c61fad65679b7",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 15,
+      "question_sha256": "9874de2cdf2b02d536c0689d8049ffa1a3f5f09f1a0fb0eb63d82eceecaebb24",
+      "prompt_sha256": "032e063cd109ddb4db89299952a511a73deb0d2d8748a4c1671cee9fd761df20",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 16,
+      "question_sha256": "6b3ee3e245189af95b03ae905d5aed3f75da89a1d201519e20f55f2d286448d8",
+      "prompt_sha256": "a765e71bab1819f5b048aa4e2f58740032b1b8312dbc28e08ca0eaef09e78ece",
+      "raw_generation": "Yes.",
+      "parsed_answer": "yes",
+      "gold": "No",
+      "score": 0.0
+    },
+    {
+      "index": 17,
+      "question_sha256": "69a8501a48a0264116363f37e986979a9258ca3c05ddf2a5648bd80c7c3e6c43",
+      "prompt_sha256": "63f05aa457e947547b94f5b969d2f336cb5da57f728262d9cfd91c7415c378f3",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 18,
+      "question_sha256": "9ea9220bcd7229b072e6b373b0a7009797e55cea9e9106f0e7f2cf90a10152b1",
+      "prompt_sha256": "460a54e40d7d54383f30b1cdd4838451f80dc8fc1465c13af51b6fc10fb692f0",
+      "raw_generation": "5.",
+      "parsed_answer": "5",
+      "gold": "5",
+      "score": 1.0
+    },
+    {
+      "index": 19,
+      "question_sha256": "812d377630ee6e34a33ec75eeea40ded2ddbfca1ab6046ebc79a63e76302d159",
+      "prompt_sha256": "b321fac5bcfa88c536717012805a36ef75f944143ca44a0186af3acbda57fe53",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "15",
+      "score": 0.0
+    },
+    {
+      "index": 20,
+      "question_sha256": "7faad4b708d0210bd0321a670d6ca2465c71fe1739977ad9bf5073390966d1f7",
+      "prompt_sha256": "6f5779fe7fa5cd970d1f88f487e951739836389447e208f1ec4bb4d4397f342e",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "2",
+      "score": 0.0
+    },
+    {
+      "index": 21,
+      "question_sha256": "777a4d4046e9fedc9d7536612c1514367e88939afe5e7e4c073d0fba06dc77a4",
+      "prompt_sha256": "ee128dfb9cd9fa90f31acc88727e5e3dce92e5946d87b759a63bcd1e57d0eeb3",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "4",
+      "score": 1.0
+    },
+    {
+      "index": 22,
+      "question_sha256": "0edef2deb6db5203892acf6b04f14dbedf76c77f031f900852a03175bc72d30d",
+      "prompt_sha256": "179b801eca545a2c19a756da2fff1ded94be65280e82ac6d69c5c9f99ced67e0",
+      "raw_generation": "10.",
+      "parsed_answer": "10",
+      "gold": "29",
+      "score": 0.0
+    },
+    {
+      "index": 23,
+      "question_sha256": "7710861a2b6be4720faa0518f958d981beeeb135d167d800734e410fcd23cbfd",
+      "prompt_sha256": "6ad407fdf51e27bfc8664ad0de55469098ff5d784fdd2cd68ff021274bbc3595",
+      "raw_generation": "10.",
+      "parsed_answer": "10",
+      "gold": "37",
+      "score": 0.0
+    },
+    {
+      "index": 24,
+      "question_sha256": "1f8b52ad32a063d4c9bca6e5939e5271188f496e9f315d6a906187140ea6e8b3",
+      "prompt_sha256": "afc9f1c20ce827ec840d41f95ebe5ea73b3b7b0aaafa6e28b04a6d7ea43a5db2",
+      "raw_generation": "3.",
+      "parsed_answer": "3",
+      "gold": "2",
+      "score": 0.0
+    },
+    {
+      "index": 25,
+      "question_sha256": "e5b2b550bc68b486139254fd352e1052a8424c2b1747a0b85fd919c76755a964",
+      "prompt_sha256": "293625a25df9b5661532f2038735e20939b931ebe4ff5f3d811014a483b29069",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "3",
+      "score": 0.0
+    },
+    {
+      "index": 26,
+      "question_sha256": "671f2cb27267c08dab85915e6dcdd0626341d302e76f355c56153047877efad6",
+      "prompt_sha256": "ebc0de6f2be84347ee476a3076bc97cfa0720baf35430e98ebe174acaf44383f",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 27,
+      "question_sha256": "4ebceaaa8a4810a0bd30476c633c986b70ab783a850cf7d837cfd0c105acc140",
+      "prompt_sha256": "0465a2645130eba8402bb34428aa4251f5773e30b05080539b3f4b32c382ae45",
+      "raw_generation": "10.",
+      "parsed_answer": "10",
+      "gold": "13",
+      "score": 0.0
+    },
+    {
+      "index": 28,
+      "question_sha256": "891417c80fee4f742a0096d456cf163ce01989e68cebab92467539c712df568e",
+      "prompt_sha256": "f0d4dce4949a305b284a8607ad6aa8836f3a743728db302e5dbd1179414fae1f",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "3",
+      "score": 0.0
+    },
+    {
+      "index": 29,
+      "question_sha256": "37adce0e05fbe58d69d5d553db510dca62ec32386721056860e7a21472b97996",
+      "prompt_sha256": "576e9b1f4c47fd6db1d53664d4c5b5253e226a7a0d2d10f3e794244c7a3a77ec",
+      "raw_generation": "10.",
+      "parsed_answer": "10",
+      "gold": "3",
+      "score": 0.0
+    },
+    {
+      "index": 30,
+      "question_sha256": "093ac5c0498933a33376f45a1991201279d17cdf5a0b6202ed490b12f1901c52",
+      "prompt_sha256": "5262c18d0b9201c63a6e86f9177ccd9ddd04dbded2934bd513ae2e1a95e263fd",
+      "raw_generation": "6.",
+      "parsed_answer": "6",
+      "gold": "19",
+      "score": 0.0
+    },
+    {
+      "index": 31,
+      "question_sha256": "c431814cb576694ce041dcacee06cc26c6a4a9b3b7560f54fae87edd92b929a8",
+      "prompt_sha256": "a208166c607f34a5b4d1e485d4e1d6a83079f2ee0722d10d675a39d633e44bd4",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 32,
+      "question_sha256": "fa199cd1ce207d571947e4f7ac5e3c6aeb854f9a83ffae4b3a9f1da472f04729",
+      "prompt_sha256": "f5fb6faef4e476a2aeb5631e1c0140560544765dbddfbc19fe01a66dad95f617",
+      "raw_generation": "6.",
+      "parsed_answer": "6",
+      "gold": "3",
+      "score": 0.0
+    },
+    {
+      "index": 33,
+      "question_sha256": "8928f382c5a8f605625c9e3a64f768704459a54866dafc0fc1036f9889d3cb8d",
+      "prompt_sha256": "a3287fba115dbefc06e8443071853c5c8e5dab5da3139c42484c9b5798f7c1e1",
+      "raw_generation": "3.",
+      "parsed_answer": "3",
+      "gold": "2",
+      "score": 0.0
+    },
+    {
+      "index": 34,
+      "question_sha256": "4e7cc03b146f259f5ccaa74368d74711ad6f3c1914a93e7ae17a7e8d54e17c9c",
+      "prompt_sha256": "22fe6ee6cd558a1b5738f9689ec3c9730ca44e407d5b812436ecf6fca1275e27",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "3",
+      "score": 0.0
+    },
+    {
+      "index": 35,
+      "question_sha256": "46a08d6e5de01ee0515beb3f5c7faf70c5aeecf509854eea472dd58ab28782f1",
+      "prompt_sha256": "11dd863d9b9d5a7cc90cc4dc81e3610db7cfd65613bcae0ad4a2406a22597c0e",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 36,
+      "question_sha256": "6dfc0cf73a996467561177d8884c197d6fcbe08dfa5ff9374bb5ed23550a603f",
+      "prompt_sha256": "cf721438eaf90e5b99f751f814bbb22833fe60c8a6ca2a215b319f8e087c6350",
+      "raw_generation": "6.",
+      "parsed_answer": "6",
+      "gold": "26",
+      "score": 0.0
+    },
+    {
+      "index": 37,
+      "question_sha256": "c7341d7d93caf80049ec1fbd7132cb19a6160a79b31aec9e084ebd8f4ba8a806",
+      "prompt_sha256": "aba9f5c44edd36c8f061db5a5bb81de35bcd90efc1496c7ed53155ca0fae951d",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 38,
+      "question_sha256": "25ecbe23723c6060da69d6cbadada4dda4dbc4e64060adacd4f08e5f78b9117e",
+      "prompt_sha256": "6f790127b3a3b49cf3b24c4b75248797ab3cc4c73cdcb20f75c6ed18bffed484",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "16",
+      "score": 0.0
+    },
+    {
+      "index": 39,
+      "question_sha256": "e18d1cff805a890de739712594fdda859f1d03e21300cd480a5c85d012eea0c6",
+      "prompt_sha256": "019eac417424fa47110551cf298cd6c6bc457e790e0589f45bf13d7e95167c64",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 40,
+      "question_sha256": "758dd237a66c80c74bb5fc186c48d8fadb0570c4a580f7050ccee032d62376ff",
+      "prompt_sha256": "6b392fc54fa7d6d66e31e018e16c0b50f4ee310601024b9b8b949bd19c3fcf54",
+      "raw_generation": "9.",
+      "parsed_answer": "9",
+      "gold": "30",
+      "score": 0.0
+    },
+    {
+      "index": 41,
+      "question_sha256": "e4f1f83952dd602939371c511dcca93161d7e216db5144b7c91ccc035dc16ee3",
+      "prompt_sha256": "86659f79c6e3490073781e8e64f3d52d6a150dda6be05a8f616ebd009bac4a84",
+      "raw_generation": "7.",
+      "parsed_answer": "7",
+      "gold": "6",
+      "score": 0.0
+    },
+    {
+      "index": 42,
+      "question_sha256": "8f1491b21c8491297c90a101becb012bebcf607f06b488e0c8fcd2f99be3e753",
+      "prompt_sha256": "1d2590a333c882d70eb3a6658f853d1957c938cf3f210947427ddae0a92c8c23",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "Yes",
+      "score": 0.0
+    },
+    {
+      "index": 43,
+      "question_sha256": "12cc2bd6e480b1790582672938d66a9fff7d5acd1df2e8084938b34f75a5a1fd",
+      "prompt_sha256": "582ad10a6269c9ba7774c3c05c673b12c4f11abbd8691f4a0bae134a03cb7706",
+      "raw_generation": "10.",
+      "parsed_answer": "10",
+      "gold": "16",
+      "score": 0.0
+    },
+    {
+      "index": 44,
+      "question_sha256": "dd0b29778229129067097ca5c871ca03972e590c5ce3662b4587443d234d48e5",
+      "prompt_sha256": "68b698294fcac00af55c22a66ee4bb01cafd77623946279c4da27802ab355cc6",
+      "raw_generation": "No.",
+      "parsed_answer": "no",
+      "gold": "No",
+      "score": 1.0
+    },
+    {
+      "index": 45,
+      "question_sha256": "48e0f0ec64147923ab15b16b07507dfa3c9c1cbdfa20eefa583c3d2c557dd343",
+      "prompt_sha256": "4eff6db86149c6e84a9e9f7f8b2aaa6ba0d3c1aac5a050111beb4e7b2f7804ed",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "3",
+      "score": 0.0
+    },
+    {
+      "index": 46,
+      "question_sha256": "8e15fb1bdbde1f2e4efb25d6b3b751bea8b83e6d92c37f263b054c916b65d7c1",
+      "prompt_sha256": "3dcaa02d48d88ec2a988c394992bc853a06c1a8489478938fe38e4968ae88e10",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "11",
+      "score": 0.0
+    },
+    {
+      "index": 47,
+      "question_sha256": "7c7229b76f2ab1f2eb93dd27844f333b3244bbba9982721b8f93c50785031102",
+      "prompt_sha256": "3a6c42bbeef3a2c66524fa621f7c35a41d9085b3f0fc80d48b50656b15a291ec",
+      "raw_generation": "4.",
+      "parsed_answer": "4",
+      "gold": "5",
+      "score": 0.0
+    },
+    {
+      "index": 48,
+      "question_sha256": "da8e7563baa08cfa920107b48d7f3adb9cd0f6b0fd6cd5b27216886b13f9c195",
+      "prompt_sha256": "9f851764affaaa36564926a902f94d5f646c9ed68604b5b723246c745e30c297",
+      "raw_generation": "6.",
+      "parsed_answer": "6",
+      "gold": "2",
+      "score": 0.0
+    },
+    {
+      "index": 49,
+      "question_sha256": "2880ba2453ae2aab6a2fe3ebb00bdf19d0abbd4d2c8cfe61358f80475bce5532",
+      "prompt_sha256": "44cbe26ee8584cd4b00c4b105cd06d2182acd3d954b1b9d6a9b9109af0306f23",
+      "raw_generation": "10.",
+      "parsed_answer": "10",
+      "gold": "14",
+      "score": 0.0
+    }
+  ],
+  "score": 0.22
+}

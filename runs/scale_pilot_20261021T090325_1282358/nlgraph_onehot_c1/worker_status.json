@@ -1,0 +1,43 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-21T09:03:29.930718+00:00",
+  "candidate": {
+    "id": "nlgraph_onehot_c1",
+    "task": "nlgraph",
+    "direction": "onehot",
+    "scale": 1.0,
+    "alpha": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "effective_delta_multiplier": 1.0,
+    "onehot_expert": "tulu_code_alpaca",
+    "smoke": true
+  },
+  "onehot_tensor_equality": "exact_cpu_all_tensors",
+  "materialized_adapter": {
+    "adapter_config.json": {
+      "path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c1/adapter/adapter_config.json",
+      "resolved_path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c1/adapter/adapter_config.json",
+      "bytes": 897,
+      "sha256": "c98a5a82c077d35392e9b2b33f7be74b7c980d58e97d1bb56b093226433efd78"
+    },
+    "adapter_model.safetensors": {
+      "path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c1/adapter/adapter_model.safetensors",
+      "resolved_path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c1/adapter/adapter_model.safetensors",
+      "bytes": 36981040,
+      "sha256": "c3aa72b8148e8983d9cb400169c35dfc5bbd5fa274a0dc5e3bf10d38e0dce190"
+    }
+  },
+  "score": 0.26,
+  "actual_samples": 50,
+  "finished_at": "2026-10-21T09:03:50.864467+00:00"
+}

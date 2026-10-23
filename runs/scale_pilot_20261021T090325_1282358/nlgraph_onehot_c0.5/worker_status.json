@@ -1,0 +1,42 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-21T09:03:51.935241+00:00",
+  "candidate": {
+    "id": "nlgraph_onehot_c0.5",
+    "task": "nlgraph",
+    "direction": "onehot",
+    "scale": 0.5,
+    "alpha": [
+      0.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "effective_delta_multiplier": 0.25,
+    "onehot_expert": "tulu_code_alpaca",
+    "smoke": false
+  },
+  "materialized_adapter": {
+    "adapter_config.json": {
+      "path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c0.5/adapter/adapter_config.json",
+      "resolved_path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c0.5/adapter/adapter_config.json",
+      "bytes": 897,
+      "sha256": "c98a5a82c077d35392e9b2b33f7be74b7c980d58e97d1bb56b093226433efd78"
+    },
+    "adapter_model.safetensors": {
+      "path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c0.5/adapter/adapter_model.safetensors",
+      "resolved_path": "/data/lvliping/merge_swarm/runs/scale_pilot_20261021T090325_1282358/nlgraph_onehot_c0.5/adapter/adapter_model.safetensors",
+      "bytes": 36981040,
+      "sha256": "b6bfb751b66402668ab4f2ca6c0a355fd4ce3055ab9fd4d1f123872941ce8de3"
+    }
+  },
+  "score": 0.22,
+  "actual_samples": 50,
+  "finished_at": "2026-10-21T09:04:12.070130+00:00"
+}

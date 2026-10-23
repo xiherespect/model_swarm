@@ -16,6 +16,11 @@ other_checkpoint/*
 !search_legal.sh
 !search_nlgraph.sh
 !search_phd_application.sh
+# Archived shell source stays visible; only generated probe assets are ignored.
+!/scripts/legacy/*.sh
+/artifacts/legacy_probes/
+# Keep run ledgers/raw records visible, but do not accidentally add model tensors.
+/runs/**/adapter/*.safetensors
 *.yml
 !swarm.yml
 *.txt

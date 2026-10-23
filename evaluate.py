@@ -3,22 +3,18 @@ import math
 import time
 import torch
 import datetime
-import reward_modeling
+import hashlib
+from pathlib import Path
+from eval_protocol import parse_mc, score_exact, parse_exact_answer, slice_bounds, harmonic_mean
 from tqdm import tqdm
 from datasets import load_dataset
 from tenacity import retry, wait_random_exponential, stop_after_attempt
-try:  # AbstainQA objective-4（人类偏好打分）才需要；环境没有则惰性降级
-    from googleapiclient import discovery
-except ImportError:
-    discovery = None
 from sklearn.metrics import accuracy_score
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from safetensors.torch import load_file, save_file
 from peft import PeftModel
 import random
-import vertexai
 import warnings
-from vertexai.generative_models import GenerativeModel, GenerationConfig, SafetySetting, HarmCategory, HarmBlockThreshold
 
 ICL_PROMPT = None
 model = None
@@ -27,18 +23,19 @@ tokenizer = None
 PERSPECTIVE_API_KEY = None
 perspective_already_warned = False
 
-try:
-    client = discovery.build(
-    "commentanalyzer",
-    "v1alpha1",
-    developerKey=PERSPECTIVE_API_KEY,
-    discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
-    static_discovery=False,
-    )
-except:
-    if not perspective_already_warned:
-        warnings.warn("Ignore this if not running RealToxicityPrompts evaluation: provide your own perspective API key through google cloud. Check out line 23.")
-        perspective_already_warned = True
+client = None
+
+
+def _perspective_client():
+    global client
+    if client is None:
+        from googleapiclient import discovery
+        client = discovery.build(
+            "commentanalyzer", "v1alpha1", developerKey=PERSPECTIVE_API_KEY,
+            discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
+            static_discovery=False,
+        )
+    return client
 
 multitask_domain_dataset_dict = {
     "legal": ["hearsay", "citation_prediction_classification"],
@@ -52,16 +49,29 @@ multitask_domain_dataset_dict = {
 # please provide your own project_id
 project_id = None
 location_list = ["us-east5", "us-south1", "us-central1", "us-west4", "us-east1", "us-east4", "us-west1"]
-location = random.choice(location_list)
-vertex_already_warned = False
-try:
-    vertexai.init(project=project_id, location=location)
-    gemini_model = GenerativeModel("gemini-1.5-flash-001")
-    generationConfig = GenerationConfig(temperature=0, max_output_tokens=20)
-except:
-    if not vertex_already_warned:
-        warnings.warn("Ignore this if not running objective 4: human preferences: provide your own project_id for Vertex AI API access. Check out line 49.")
-        vertex_already_warned = True
+gemini_model = None
+
+
+def _gemini_client():
+    global gemini_model, generationConfig, safety_config
+    if gemini_model is None:
+        import vertexai
+        from vertexai.generative_models import (
+            GenerativeModel, GenerationConfig, SafetySetting, HarmCategory,
+            HarmBlockThreshold,
+        )
+        vertexai.init(project=project_id, location=random.choice(location_list))
+        gemini_model = GenerativeModel("gemini-1.5-flash-001")
+        generationConfig = GenerationConfig(temperature=0, max_output_tokens=20)
+        safety_config = [SafetySetting(category=category,
+                                      threshold=HarmBlockThreshold.BLOCK_NONE)
+                         for category in (
+                             HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                             HarmCategory.HARM_CATEGORY_HARASSMENT,
+                             HarmCategory.HARM_CATEGORY_UNSPECIFIED,
+                             HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                             HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT)]
+    return gemini_model
 
 ONLY_ONE_OR_TWO = None
 
@@ -73,28 +83,6 @@ torch.cuda.manual_seed_all(seed)
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
 
-safety_config = [
-    SafetySetting(
-        category=HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-        threshold=HarmBlockThreshold.BLOCK_NONE,
-    ),
-    SafetySetting(
-        category=HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold=HarmBlockThreshold.BLOCK_NONE,
-    ),
-    SafetySetting(
-        category=HarmCategory.HARM_CATEGORY_UNSPECIFIED,
-        threshold=HarmBlockThreshold.BLOCK_NONE,
-    ),
-    SafetySetting(
-        category=HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold=HarmBlockThreshold.BLOCK_NONE,
-    ),
-    SafetySetting(
-        category=HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold=HarmBlockThreshold.BLOCK_NONE,
-    ),
-]
 
 def lora_weight_visualize(path):
     state_dict_this = load_file(path, device="cpu")
@@ -116,7 +104,7 @@ def parse_gemini_score(response):
 def gemini_eval(prompt, response):
     eval_prompt = "For the following instruction and response, please rate the response on a scale of 1 to 10, where 1 is the worst and 10 is the best. Please respond with \"Rating: ?/10\" first and then provide your reason.\n\n + \
     Instruction: " + prompt + "\n\nResponse: " + response
-    eval_response = gemini_model.generate_content(eval_prompt, generation_config = generationConfig, safety_settings = safety_config).text
+    eval_response = _gemini_client().generate_content(eval_prompt, generation_config = generationConfig, safety_settings = safety_config).text
 
     time.sleep(1)
 
@@ -155,7 +143,7 @@ def get_toxicity_score(text):
         'requestedAttributes': {'TOXICITY': {}}
     }
 
-    response = client.comments().analyze(body=analyze_request).execute()
+    response = _perspective_client().comments().analyze(body=analyze_request).execute()
     return response["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
 
 def multiple_choice_prompt(instance_dict, dataset):
@@ -238,11 +226,114 @@ def batch_generate(model, tokenizer, prompts, gpu_id, batch_size=10, max_new_tok
 
     return outputs
 
+def _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
+                     split, subset_size, subset_start, result_dir):
+    """Versioned local evaluation; legacy artifacts are never overwritten."""
+    from eval_protocol import STRICT_EXACT_DATASETS, PROTOCOL_METADATA
+
+    if split not in ("dev", "test"):
+        raise ValueError("unknown split")
+    if eval_type not in ("exact_match", "multiple_choice", "multitask"):
+        raise ValueError("strict_v1 supports MC, numeric/boolean exact match and domains only")
+    if eval_type == "exact_match" and dataset not in STRICT_EXACT_DATASETS:
+        raise ValueError("strict exact-match task has no frozen scoring rule")
+    base = Path(base_model)
+    adapter = Path(model_path)
+    if not base.is_dir() or not adapter.is_dir():
+        raise ValueError("strict_v1 requires local base and adapter directories")
+    if result_dir is None:
+        raise ValueError("strict_v1 requires a new result_dir")
+    destination = Path(result_dir)
+    if destination.exists():
+        raise FileExistsError(destination)
+
+    data_root = Path(__file__).resolve().parent / "data" / "eval"
+    if eval_type == "multitask":
+        children = multitask_domain_dataset_dict[dataset]
+        # Validate every child before creating output or loading a model.
+        for child in children:
+            with (data_root / (child + ".json")).open() as handle:
+                rows = json.load(handle)[split]
+            slice_bounds(len(rows), subset_size, subset_start, "strict_v1")
+        destination.mkdir(parents=True, exist_ok=False)
+        scores = []
+        for child in children:
+            kind = "exact_match" if child in STRICT_EXACT_DATASETS else "multiple_choice"
+            scores.append(_strict_evaluate(
+                model_path, kind, child, gpu_id, base_model, split,
+                subset_size, subset_start, destination / child))
+        score = harmonic_mean(scores, "strict_v1")
+        with (destination / "evaluation.json").open("x") as handle:
+            json.dump({"scoring_version": "strict_v1", "split": split,
+                       "aggregation_version": "harmonic_v1",
+                       "subset_start": subset_start, "subset_size": subset_size,
+                       "per_dataset_scores": dict(zip(children, scores)),
+                       "score": score}, handle, indent=2)
+        return score
+
+    with (data_root / (dataset + ".json")).open() as handle:
+        data = json.load(handle)
+    start, stop = slice_bounds(len(data[split]), subset_size, subset_start, "strict_v1")
+    rows = data[split][start:stop]
+    global ICL_PROMPT
+    ICL_PROMPT = data.get("icl_prompt")
+    prompts = [multiple_choice_prompt(row, dataset) if eval_type == "multiple_choice"
+               else row["question"] for row in rows]
+    destination.mkdir(parents=True, exist_ok=False)
+    metadata = {"scoring_version": "strict_v1", "protocol_metadata": PROTOCOL_METADATA["strict_v1"],
+                "split_protocol_version": "slice_v1",
+                "aggregation_version": "mean_v1", "dataset": dataset,
+                "eval_type": eval_type, "split": split, "subset_start": start,
+                "subset_stop": stop, "base_model": str(base.resolve()),
+                "adapter": str(adapter.resolve()), "n_samples": len(rows),
+                "do_sample": False, "max_new_tokens": 200 if dataset == "gsm8k" else 10,
+                "batch_size": 5 if dataset.startswith("nlgraph") else 10}
+    local_model = local_tokenizer = None
+    try:
+        local_model = AutoModelForCausalLM.from_pretrained(
+            str(base), torch_dtype=torch.float16, local_files_only=True)
+        local_model = PeftModel.from_pretrained(local_model, str(adapter), local_files_only=True)
+        local_model = local_model.merge_and_unload().to(f"cuda:{gpu_id}")
+        local_tokenizer = AutoTokenizer.from_pretrained(str(base), local_files_only=True)
+        local_tokenizer.pad_token = local_tokenizer.eos_token
+        outputs = batch_generate(local_model, local_tokenizer, prompts, gpu_id,
+                                 batch_size=metadata["batch_size"],
+                                 max_new_tokens=metadata["max_new_tokens"])
+        if len(outputs) != len(rows):
+            raise RuntimeError("generation count does not match requested samples")
+        records = []
+        for index, row, prompt, raw in zip(range(start, stop), rows, prompts, outputs):
+            parsed = (parse_mc(row, raw, "strict_v1") if eval_type == "multiple_choice"
+                      else parse_exact_answer(dataset, raw, "strict_v1"))
+            value = (float(parsed == row["answer"]) if eval_type == "multiple_choice"
+                     else score_exact(dataset, row["answer"], raw, "strict_v1", split))
+            payload = json.dumps(row, sort_keys=True, ensure_ascii=False).encode()
+            records.append({"index": index, "question_sha256": hashlib.sha256(payload).hexdigest(),
+                            "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+                            "raw_generation": raw, "parsed_answer": parsed,
+                            "gold": row["answer"], "score": value})
+        score = sum(record["score"] for record in records) / len(records)
+        with (destination / "evaluation.json").open("x") as handle:
+            json.dump({**metadata, "records": records, "score": score}, handle,
+                      indent=2, ensure_ascii=False)
+        return score
+    finally:
+        del local_model, local_tokenizer
+        torch.cuda.empty_cache()
+
+
 # given a model, evaluate it on the utility function and return the scalar value
-def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", save_dev_flag = False, only_one_or_two = None, skip_flag = False, subset_size = None, subset_start = None):
+def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", save_dev_flag = False, only_one_or_two = None, skip_flag = False, subset_size = None, subset_start = None, protocol="legacy", result_dir=None):
 
     if skip_flag:
         return None
+    if protocol == "strict_v1":
+        if only_one_or_two is not None or ONLY_ONE_OR_TWO is not None:
+            raise ValueError("strict_v1 does not support a single domain-component override")
+        return _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
+                                "dev", subset_size, subset_start, result_dir)
+    if protocol != "legacy":
+        raise ValueError("unknown evaluation protocol")
 
     global model
     global tokenizer
@@ -345,6 +436,7 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
                 ]
             )
         
+        import reward_modeling
         scores_list = reward_modeling.get_reward_scores(pairs, gpu_id, rm_mode)
         if save_dev_flag:
             with open(model_path + "/scores_dev.json", "w") as f:
@@ -539,8 +631,15 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
         return get_effective_reliability(correct_flags, abstain_flags)
 
 # evaluation on the test set, similar to the dev set evaluation, but kept seperate in case the test eval might be dratiscally different from dev in generalization settings
-def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", only_one_or_two = None, obj4_save_generation=False):
+def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", only_one_or_two = None, obj4_save_generation=False, protocol="legacy", result_dir=None):
 
+    if protocol == "strict_v1":
+        if only_one_or_two is not None or ONLY_ONE_OR_TWO is not None:
+            raise ValueError("strict_v1 does not support a single domain-component override")
+        return _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
+                                "test", None, None, result_dir)
+    if protocol != "legacy":
+        raise ValueError("unknown evaluation protocol")
     global model
     global tokenizer
 
@@ -634,6 +733,7 @@ def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/g
                 ]
             )
         
+        import reward_modeling
         scores_list = reward_modeling.get_reward_scores(pairs, gpu_id, rm_mode)
         with open(model_path + "/scores.json", "w") as f:
             json.dump(scores_list, f)

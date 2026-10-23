@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:merge-swarm:legacy-run-manifest:v1",
+  "title": "Frozen legacy evidence manifest",
+  "description": "Historical evidence only. No strict scoring assertion or automatic directory discovery. The standard-library reader additionally validates cohort completeness, uniqueness, paths, hashes, and selection semantics.",
+  "type": "object",
+  "required": ["schema_version", "evidence_track", "selection_policy", "run_freeze_reason", "metric_policy", "expert_pool", "task_independence", "data_audit", "cohorts", "runs", "supplemental_evidence"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema_version": {"const": 1},
+    "evidence_track": {"const": "legacy_aggregation_corrected_v1"},
+    "selection_policy": {"const": "frozen_explicit_runs_no_test_selection"},
+    "run_freeze_reason": {"type": "string", "minLength": 1},
+    "metric_policy": {"type": "object", "required": ["domain_tasks", "harmonic", "macro", "raw_scoring", "precision"]},
+    "expert_pool": {
+      "type": "object",
+      "required": ["original_expert_count", "candidate_or_particle_count", "names", "source", "merge", "weight_hashes"],
+      "properties": {
+        "original_expert_count": {"const": 10},
+        "candidate_or_particle_count": {"const": 20},
+        "names": {"type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true, "items": {"type": "string"}},
+        "source": {"$ref": "#/$defs/source"},
+        "merge": {"const": "factor_A_and_B_separately_linear_then_BA_quadratic_cross_terms"},
+        "weight_hashes": {"const": "unknown"}
+      }
+    },
+    "task_independence": {"type": "object", "additionalProperties": {"$ref": "#/$defs/independence"}},
+    "data_audit": {
+      "type": "array", "items": {
+        "type": "object", "required": ["dataset", "source", "dev_count", "test_count", "shared_unique_questions", "identical_full_records", "scope"],
+        "properties": {"source": {"$ref": "#/$defs/source"}, "scope": {"const": "current_snapshot_not_proof_of_historical_data_hash"}}
+      }
+    },
+    "cohorts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/cohort"}},
+    "runs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/run"}},
+    "supplemental_evidence": {
+      "type": "array", "items": {
+        "type": "object", "required": ["id", "sources", "scope", "code_version"],
+        "properties": {"sources": {"type": "array", "items": {"$ref": "#/$defs/source"}}, "code_version": {"const": "unknown"}}
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "source": {
+      "type": "object", "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\*?\\[\\]]).+$"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "line": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "independence": {"enum": ["split_independence_unverified", "not_independent_shared_questions", "shared_question_instance_family_risk"]},
+    "method": {
+      "type": "object", "required": ["config_id", "seeds", "protocol"],
+      "properties": {
+        "config_id": {"type": "string", "minLength": 1},
+        "seeds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer"}},
+        "protocol": {"const": "legacy_scoring_unknown_code"}
+      }, "additionalProperties": false
+    },
+    "cohort": {
+      "type": "object", "required": ["id", "tasks", "methods", "scope"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "tasks": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "methods": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/method"}},
+        "scope": {"type": "string", "minLength": 1}
+      }, "additionalProperties": false
+    },
+    "run": {
+      "type": "object",
+      "required": ["id", "cohort", "task", "method", "seed", "seed_provenance", "args", "config_id", "protocol", "code_version", "data_independence", "selection", "extractor", "metric_definition", "missing_metadata", "sources", "expected"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "cohort": {"type": "string", "minLength": 1},
+        "task": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 1},
+        "seed": {"type": "integer"},
+        "seed_provenance": {"type": "string", "minLength": 1},
+        "args": {"type": "object"},
+        "config_id": {"type": "string", "minLength": 1},
+        "protocol": {"const": "legacy_scoring_unknown_code"},
+        "code_version": {"const": "unknown"},
+        "data_independence": {"$ref": "#/$defs/independence"},
+        "selection": {"const": "frozen_run_dev_selected_candidate"},
+        "extractor": {"enum": ["final_fields", "pso_final", "pso_scores", "router"]},
+        "metric_definition": {"enum": ["domain_harmonic_legacy_components", "legacy_logged_test_or_saved_scores", "logged_route_event_not_counterfactual_correctness"]},
+        "missing_metadata": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+        "expected": {"type": "object", "minProperties": 1},
+        "selected_particle": {"type": "integer", "minimum": 0},
+        "components": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true, "items": {"type": "string"}},
+        "candidate_selector": {"const": "max_final_personal_best_dev_first_numeric_particle_on_tie"},
+        "correction": {"const": "H_of_logged_two_domain_test_components_same_dev_selected_particle_no_rescoring"},
+        "precision": {"type": "string"}
+      },
+      "allOf": [
+        {"if": {"properties": {"task": {"const": "legal"}}}, "then": {"properties": {"data_independence": {"const": "not_independent_shared_questions"}}}},
+        {"if": {"properties": {"extractor": {"enum": ["pso_final", "pso_scores"]}}}, "then": {"required": ["selected_particle", "candidate_selector"]}}
+      ],
+      "additionalProperties": false
+    }
+  }
+}
