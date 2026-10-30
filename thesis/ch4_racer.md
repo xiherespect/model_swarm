@@ -4,7 +4,7 @@
 
 RACER（Ridge-Adaptive Covariance Evolution with Racing）是本文的主要方法：在十维 **factor 合并** 系数空间内，把多样化候选生成、分层评测与终选组织为可审计的搜索流程。研究问题不是证明某优化器普遍占优，而是在昂贵、有限开发数据条件下，怎样分配搜索调用，并分离方向、尺度、选择和评分的贡献。
 
-历史实现包含多个演化版本。本章主表只采用明确指定的 RF 最终批次双种子档案与固定基线名单，不把目录中 test 更好的早期 run 换进来。当前源码可用于解释机制，但没有运行时源码哈希，不能断言等同于每个历史 run 的源码。
+本章按时间分两条轨道：**4.3–4.4 为 legacy 历史轨道**（RF 最终批次双种子档案与固定基线名单，不把目录中 test 更好的早期 run 换进来；无运行时源码哈希，不能断言当前源码等同于历史 run 源码），**4.5 为冻结协议正式矩阵 racer_frozen_v1（本章主结果）**——预注册 240 run、冻结身份、独立终选与逐调用账本。两条轨道的表分开呈现，不互相混算，也不以 legacy 表的数字为冻结协议背书。
 
 ## 4.2 候选生成与竞速
 
@@ -92,9 +92,83 @@ SMM 结果由清单 `supplemental_evidence` 指向 `smmbench_results.json` 及�
 
 聚合 JSON 未保存预算、种子列表、重复数和代理哈希，不能只从当前默认值反推“3000 预算 × 10 种子”。这些数值不进入 LLM 主表，不与文献约数排冠军，不证明完整 RACER 协议泛化。下一轮应冻结代理身份与正规的官方对手后独立报告。
 
-## 4.5 可复现入口与本章结论
+## 4.5 冻结协议正式矩阵 racer_frozen_v1（2026-10，本章主结果）
 
-标准库只读重建：
+### 4.5.1 预注册与身份冻结
+
+上节 legacy 表的协议债务（评分未冻结、无独立终选、成本不匹配、seed 不齐）由本节矩阵清偿。实现为全新 `search_core.py`/`search_frozen.py`（不 import 旧 main），评分协议 `racer_eval_v1`（保守精确解析 + 冻结答案格式指令），预算 `B_t=110×D_t` 逐调用 reserve 计费，终选=完整 dev 首次观测 raw argmax，仅最终模型 test 一次。门禁 25/25 全绿后冻结身份（源码/数据/专家/基模 SHA-256）；正式矩阵按预注册 240 run 执行，不因结果改协议或追加 seed。
+
+主对手与 RACER 共享 20 点初始化与 box [-.5,1.5]：官方 pycma 4.5.0（popsize8 σ.3）、按原 search.py 公式移植的 box PSO、signed box 均匀随机。全部方法同终选规则、同账本口径。
+
+### 4.5.2 A 主比较（9 任务 × 4 方法 × 3 seed = 108 run）
+
+<!-- BEGIN GENERATED FROZEN MAIN TABLE -->
+| task | RACER | CMA | PSO | random | best |
+|---|---|---|---|---|---|
+| nlgraph | .3547 | .3513 | **.3750** | .3320 | PSO |
+| gsm8k | **.3640** | .2623 | .3283 | .2520 | RACER |
+| hellaswag | .5893 | **.5953** | .5673 | .5547 | CMA |
+| mmlu | **.6077** | .6000 | .6000 | .5743 | RACER |
+| mmlu_pro | .2207 | .2107 | **.2217** | .2117 | PSO |
+| truthfulqa | .4290 | .4344 | .4371 | **.4392** | random |
+| medical | **.4216** | .4128 | .4184 | .4113 | RACER |
+| science | **.2843** | .2724 | .2564 | .2617 | RACER |
+| culture | .5493 | **.5566** | .5409 | .5229 | CMA |
+| macro mean | **.4245** | .4107 | .4161 | .3955 | RACER |
+<!-- END GENERATED FROZEN MAIN TABLE -->
+
+（test 三 seed 均值；240/240 run 全部 succeeded 且经 `tools/racer_results.py` 证据链验证。）
+
+配对分析（9 任务级）：RACER−random **+2.90pt，t(8)=2.55，p<.05 显著**；RACER−CMA +1.38pt t=1.23、RACER−PSO +0.84pt t=1.41，方向一致但未达显著。seed 级 27 对：vs CMA 17W/1T/9L、vs PSO 17W/0T/10L、vs random 22W/0T/5L。
+
+任务画像分化是本表的核心结构：**RACER 的最大优势在 gsm8k**（生成式数学，+10.2pt vs CMA、+3.6pt vs PSO），science/medical/mmlu 小幅领先（+0.8~+2.8pt），纯 MC 判别任务差距压缩（hellaswag −0.6pt vs CMA），truthfulqa 上随机基线最优（搜索负增益）。3 seed 功效有限，任务级结论按均值+区间理解。
+
+### 4.5.3 B 单因子消融（4 任务 × 9 配置 × 3 seed = 108 run）
+
+<!-- BEGIN GENERATED FROZEN ABLATION TABLE -->
+| task | full | no_DE | no_ES | no_sum | no_guard | no_plateau | no_rung2 | full_eval | standard_SH | cma_sh |
+|---|---|---|---|---|---|---|---|---|---|---|
+| nlgraph | .3547 | .3677 | .3617 | .3650 | .3427 | .3547 | **.3757** | .3413 | .3733 | .3587 |
+| gsm8k | **.3640** | .3200 | .2960 | .3297 | .3540 | .3640 | .3553 | .2990 | .3327 | .3323 |
+| hellaswag | .5893 | .5863 | .5737 | .5797 | **.5907** | .5887 | .5807 | .5757 | .5817 | .5810 |
+| medical | .4216 | .4212 | .4216 | .4174 | .4158 | .4216 | .4135 | **.4295** | .4173 | .4168 |
+| 4task macro | **.4324** | .4238 | .4132 | .4229 | .4258 | .4322 | .4313 | .4114 | .4262 | .4222 |
+<!-- END GENERATED FROZEN ABLATION TABLE -->
+
+组件价值随任务画像反转：
+
+- **三引擎缺一不可只在 gsm8k 成立**：gsm8k 单删全降（no_ES −6.8pt 最深、no_DE −4.4pt、no_sum −3.4pt）；同为生成任务的 nlgraph 单删反而全部小幅反超（+1.3~+3.0pt）；四任务宏观 full 仍最高（.4324）。
+- **MC 任务组件可省且反转**：medical 上 full_eval（取消竞速漏斗）三 seed 全超 full（.4295 vs .4216）且省 30% 生成时间（1.04h vs 1.50h）；nlgraph 上 no_rung2（+2.1pt）与 standard_SH（+1.9pt）反超 full。
+- **plateau 切换四任务零贡献**（no_plateau 与 full 差 ≤0.2pt 内，gsm8k 完全并列）。
+- guard 接受规则贡献小且方向不一：nlgraph/gsm8k/medical 降 0.6–1.2pt，hellaswag 反而 +0.1pt（该行最高）——守卫不构成稳定收益部件。
+- 强组合对照未替代 RACER：cma_sh 四任务宏观 .4222 低于 full .4324。
+
+竞速漏斗与三引擎的结论因此是**条件性的**：gsm8k 上全套机制缺一不可（单删引擎 −3.4~−6.8pt、取消漏斗 −6.5pt），nlgraph 反而简化晋升更好，medical 取消漏斗分数时间双赚，hellaswag 各配置与 full 差 ≤1.6pt。论文按任务画像如实呈现，不写"漏斗普遍有益"。
+
+### 4.5.4 C 尺度解混（12 run）与 D kcross 敏感性（12 run）
+
+C 组：sum1 空间 PSO 与同轨迹+固定 scale 网格 [.5,.75,1,1.25,1.5] 对照，同总预算。nlgraph scalegrid .3707 vs sum1 .3617（+0.9pt，且全部来自 s44 单点 +2.7pt）；gsm8k 逐 seed 逐分相同（.2957）。**固定 scale 网格无稳定收益**：box 空间已覆盖尺度自由度，sum1 空间整体落后 box 主表。第 3 章的尺度平方效应仍是数学事实，但不构成"后置 scale 校准"的实用路径。
+
+D 组（kcross，dev/test 题干重叠的敏感性分析，不计入宏平均）：
+
+| 方法 | 全量 test | 去重叠 filtered | Δ |
+|---|---|---|---|
+| CMA | .4147 | .4285 | +1.4pt |
+| RACER | .3980 | .3989 | +0.1pt |
+| PSO | .3940 | .4001 | +0.6pt |
+| random | .3930 | .3989 | +0.6pt |
+
+RACER 的分差对 dev/test 重叠**完全不敏感**（filtered≈test）；CMA 过滤重叠题后反而扩大领先。该任务 RACER 搜索负增益（落后 CMA 1.7pt），与 truthfulqa 同类画像。两项合并的解释：在搜索本身负增益的任务上，RACER 退向初始化候选，不放大 dev 噪声。
+
+**身份披露**：D 组 12 run 因 test 路径缺陷（任务名误作数据集名）首跑失败后修复重跑，`search_frozen.py` 身份与 A/B/C 不同；A/B/C 228 run 旧身份保留，D 组单独核验（`experiments/racer_campaign_v1_D_disclosure.md`）。两组不混算（本来也不混）。
+
+### 4.5.5 成本
+
+A 主表四方法生成墙钟同量级（MC 任务 racer 比最快基线慢 10-25%，来自漏斗多次粗评的加载开销；生成任务无差）。anytime 账本记录同轨迹 30/60/110 预算处 best_seen（如 gsm8k s42：6600 样本 .34 → 13200 样本 .53），不伪装成独立预算实验。全部 run `physical_samples == budget_used + test_samples` 逐 run 验证。
+
+## 4.6 可复现入口与本章结论
+
+### 4.6.1 legacy 轨道
 
 ```bash
 /data/lvliping/miniconda3/envs/swarm/bin/python -I tools/thesis_results.py --manifest experiments/legacy_manifest.json
@@ -102,4 +176,18 @@ SMM 结果由清单 `supplemental_evidence` 指向 `smmbench_results.json` 及�
 
 可选 `--output /new/path/report.json` 只允许新建文件，已有目标拒绝覆盖，search/ 内拒绝写入；运行时不生成图表。CPU 回归见 `tests/test_thesis_results.py`，包含真实清单均值、PSO 同粒子 H、并列规则、SUMO 分组、路由非正确率、路径/哈希及旧日志未变测试。
 
-本章形成的核心结果是 **RACER 方法描述与一张可追溯、校正聚合但仍属 legacy 的历史表**。独立终选、严格评分的新 run 与等成本因果消融属于后续闸门，不能借由清单测试通过而宣称已完成。
+### 4.6.2 冻结轨道（主结果）
+
+```bash
+/data/lvliping/miniconda3/envs/swarm/bin/python -I tools/racer_results.py \
+  --campaign experiments/racer_campaign_v1_AC --campaign experiments/racer_campaign_v1_BD \
+  --campaign experiments/racer_campaign_v1_D1 --campaign experiments/racer_campaign_v1_D2
+```
+
+四实例合并验证（AC 为主表+消融的 A 组，BD 为消融 B/C 组，D1/D2 为修复后重跑的 D 组）；A/B/C 与 D 快照除 created_at 与经批准修复的 `search_frozen.py` 哈希外逐字段一致。已归档合并行表 `experiments/racer_final_v1_verified_rows.json`（240 verified）。CPU 回归见 `tests/test_racer_results.py`、`tests/test_search_core.py`、`tests/test_search_frozen_runner.py`、`tests/test_racer_campaign.py`。
+
+### 4.6.3 本章结论
+
+冻结协议下 RACER 的最终画像：**宏平均最优（.4245）且对随机基线显著（+2.90pt, t(8)=2.55），对 CMA/PSO 方向一致但未达显著**；最大单任务优势在 gsm8k（+10.2pt vs CMA），truthfulqa 与 kcross 上搜索本身负增益、RACER 不放大 dev 噪声。组件贡献条件化：三引擎与竞速漏斗的不可替代性仅在 gsm8k 成立，其余任务上简化配置可反超（medical 的 full_eval、nlgraph 的 no_rung2/standard_SH）；plateau 切换全程零贡献，是从最终版中撤下的候选。legacy 轨道（4.3）在校正聚合后方向一致（RACER 宏平均最高），但协议债务使其只能历史参照。
+
+本章不宣称：任务级单点胜负显著、竞速漏斗普遍有益、RACER 在所有任务画像上占优。3 seed 功效限制与多消融探索性比较的多重性在第 6 章局限中正式说明。

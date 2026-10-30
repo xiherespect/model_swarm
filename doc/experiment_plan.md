@@ -83,3 +83,28 @@ pilot目标是 **尺度敏感性**，不是预期必涨。允许观察到降分�
 - 已执行批准的真实pilot，run为 `runs/scale_pilot_20261021T090325_1282358/`；3/20配置成功、150条dev、64.190秒，终态blocked。前三项均为nlgraph onehot，c=1/.5/.75分数.26/.22/.22；不据partial宣布最优尺度或算法收益。
 - 第四配置前GPU空闲检查未通过；失败时原始遥测未落盘，尚不能确认是释放尾窗或其他占用。未重试、未切卡、未启动剩余17项或扩展搜索。
 - 详见 `doc/scale_pilot_report.md`，包含invalid率、实际来源、未完成项及需要重新批准的恢复闸门。
+
+## 8. 冻结矩阵 racer_frozen_v1 执行状态（2026-10-29，预注册范围已完成）
+
+### 8.1 执行与验证
+
+- **240/240 run 全部 succeeded 且经证据链独立验证**（`tools/racer_results.py` 四实例合并：AC 228 中的 A 组+消融引用、BD B/C 组、D1/D2 修复后 D 组）。每 run 核验：快照身份（源码/数据/专家/基模逐文件 SHA-256，跟随符号链接按目标字节）、job/summary/ledger 一致性、完整 dev 首次观测 raw argmax 终选、oracle test 证物档案（含 multitask 调和均值逐组件重算）、kcross 双分与预冻结子集索引。
+- 四实例拆分原因：排程工具硬限 max_parallel ≤2 与 GPU 白名单 ≤2 张；AC/BD 双卡双实例并行，D 组单实例重跑拆 D1/D2。
+- **D 组身份拼接披露**：首跑 12 run 因 `search_frozen.py` evaluate_test 把任务名当数据集名（kcross 的数据集是 knowledge_crosswords）全部 FileNotFoundError；经批准修复（单数据集任务传 `self.datasets[0]`）+ 回归测试后整组重跑。A/B/C 228 run 旧身份保留，D 组新身份单独核验（`experiments/racer_campaign_v1_D_disclosure.md`）。合并行表 `experiments/racer_final_v1_verified_rows.json`。
+- 结果工具在验证中发现并修复三处自身缺陷（symlink 误拒、job.run 含调度器状态键、多实例合并），`tools/racer_results.py` 不在身份依赖清单内，属合法修复；7 项 CPU 测试全绿。
+
+### 8.2 核心结果（详见 thesis/ch4_racer.md 4.5 节）
+
+| 组 | run | 结论 |
+|---|---|---|
+| A 主比较 | 108 | 宏平均 RACER **.4245** > PSO .4161 > CMA .4107 > random .3955；vs random +2.90pt t(8)=2.55 显著，vs CMA/PSO 方向一致未显著；最大单任务优势 gsm8k +10.2pt，truthfulqa random 最优 |
+| B 消融 | 108 | full .4324 最高；组件价值任务反转：medical full_eval 反超+省30%时间、nlgraph no_rung2/standard_SH 反超、plateau 零贡献、三引擎与漏斗不可替代性仅 gsm8k 成立 |
+| C 尺度 | 12 | 固定 scale 网格无稳定收益（gsm8k 逐分相同；nlgraph +0.9pt 全来自单 seed 单点） |
+| D kcross | 12 | RACER 对题干重叠不敏感（Δ+0.1pt 四方法最小）；该任务搜索负增益 |
+
+### 8.3 遗留与后续闸门
+
+- 3 seed 功效限制：任务级仅 vs random 显著；追加 seed 须整批重开新 cohort，不拼接现有身份。
+- 外部有效性缺口未变：第二基座/专家池/未见测试来源/官方 SMM-NGOpt 对手均未补。
+- 组件精简：plateau 已证零贡献；racer_frozen_v2（去 plateau）提案若立项须重走完整冻结流程（实现→CPU 测试→dev 门禁→身份冻结→预注册矩阵）。
+- 论文五文件已更新至双轨叙事（legacy 4.3–4.4 / 冻结 4.5 主结果）；负结果与身份披露保留在正文，不做图表占位。
