@@ -102,6 +102,8 @@ SMM 结果由清单 `supplemental_evidence` 指向 `smmbench_results.json` 及�
 
 ### 4.5.2 A 主比较（9 任务 × 4 方法 × 3 seed = 108 run）
 
+本节表读法提示：宏平均回答“平均而言谁更好”（弱，功效受限）；任务行与配对分布回答“什么时候值得搜索、什么时候方法互换”（强，本矩阵的实质发现）。
+
 <!-- BEGIN GENERATED FROZEN MAIN TABLE -->
 | task | RACER | CMA | PSO | random | best |
 |---|---|---|---|---|---|
@@ -121,7 +123,13 @@ SMM 结果由清单 `supplemental_evidence` 指向 `smmbench_results.json` 及�
 
 配对分析（9 任务级）：RACER−random **+2.90pt，t(8)=2.55，p<.05 显著**；RACER−CMA +1.38pt t=1.23、RACER−PSO +0.84pt t=1.41，方向一致但未达显著。seed 级 27 对：vs CMA 17W/1T/9L、vs PSO 17W/0T/10L、vs random 22W/0T/5L。
 
+任务簇 bootstrap（10⁴ 重采样，9 任务为簇、簇内用 seed 均值差，探索性）：RACER−CMA +1.38pt **95%CI [−0.09, +3.72]**；RACER−PSO +0.84pt [−0.25, +1.91]；RACER−random +2.90pt [+1.15, +5.29]。CI 与 t 检验一致：只有对 random 的区间不含零。
+
+效应的稳健性需要注明集中度：去掉 gsm8k 后 RACER−CMA 宏平均差从 +1.38pt 降至 +0.29pt（−PSO 从 +0.84 降至 +0.49）——**平均优势主要由 gsm8k 单任务贡献**。gsm8k 内部是干净的：RACER 三 seed 全胜 CMA（.380/.333/.379 vs .221/.252/.314，逐 seed 领先 6.5~15.9pt），且消融（4.5.3）显示恰在此任务上每个组件都不可省。两种读法并存：任务级平均的结论弱（受任务间方差 SD 3.38pt 支配，9 任务功效不足；80% 功效约需 47 个任务）；单任务内与机制层的结论强。
+
 任务画像分化是本表的核心结构：**RACER 的最大优势在 gsm8k**（生成式数学，+10.2pt vs CMA、+3.6pt vs PSO），science/medical/mmlu 小幅领先（+0.8~+2.8pt），纯 MC 判别任务差距压缩（hellaswag −0.6pt vs CMA），truthfulqa 上随机基线最优（搜索负增益）。3 seed 功效有限，任务级结论按均值+区间理解。
+
+从“什么时候值得搜索”的角度重读本表，实用结论是条件性的：**gsm8k 上 RACER 对 random +11.2pt、PSO +7.6pt，是全表唯一大幅搜索收益，但同预算的 CMA 只 +1.0pt**（.221/.252/.314 逐 seed 大方差）——收益来自搜索器×任务的匹配，不是“搜索”本身；**hellaswag/nlgraph/culture/mmlu 上搜索相对 random 有 3.3~4.3pt 稳定收益，但方法间排序互换**（hellaswag/culture 是 CMA 最优，nlgraph 是 PSO 最优）；**mmlu_pro/medical/truthfulqa 上任何搜索方法与 random 差 ≤1.0pt**（truthfulqa 为负）——在那类任务上为合并系数烧搜索预算，期望收益低于任务间方差。方法选择与方法内部组件选择（4.5.3）一样，都是任务画像的函数。
 
 ### 4.5.3 B 单因子消融（4 任务 × 9 配置 × 3 seed = 108 run）
 
@@ -164,7 +172,23 @@ RACER 的分差对 dev/test 重叠**完全不敏感**（filtered≈test）；CMA
 
 ### 4.5.5 成本
 
-A 主表四方法生成墙钟同量级（MC 任务 racer 比最快基线慢 10-25%，来自漏斗多次粗评的加载开销；生成任务无差）。anytime 账本记录同轨迹 30/60/110 预算处 best_seen（如 gsm8k s42：6600 样本 .34 → 13200 样本 .53），不伪装成独立预算实验。全部 run `physical_samples == budget_used + test_samples` 逐 run 验证。
+四方法生成墙钟（3 seed 均值，小时）：
+
+| task | RACER | CMA | PSO | random |
+|---|---|---|---|---|
+| nlgraph | 1.61 | 1.46 | 1.32 | 1.56 |
+| gsm8k | 3.20 | 3.11 | 2.86 | 3.13 |
+| hellaswag | 0.73 | 0.60 | 0.55 | 0.61 |
+| mmlu | 0.65 | 0.59 | 0.54 | 0.61 |
+| mmlu_pro | 0.46 | 0.38 | 0.33 | 0.36 |
+| truthfulqa | 0.64 | 0.51 | 0.45 | 0.49 |
+| medical | 1.50 | 1.20 | 1.06 | 1.15 |
+| science | 1.23 | 1.08 | 0.94 | 1.06 |
+| culture | 2.32 | 1.74 | 1.65 | 1.80 |
+
+同预算下 RACER 比最快基线（PSO）慢 12–42%（漏斗多次粗评的加载开销），gsm8k 上差距最小（+12%）。成本-精度联合看：**gsm8k 是 RACER 明确的性价比区间**（+10.2pt vs CMA 只多花 3% 时间）；medical 上 full_eval 更便宜也更好（1.04h/.4295 vs full 1.50h/.4216，−31% 时间 +0.8pt）；hellaswag 的 full_eval 同样更便宜（0.59h vs 0.73h）但掉 1.4pt；nlgraph 的 standard_SH 分数更高但更贵（1.62h）。**没有一个配置在所有任务上同时最优分数与最低成本**——支持按任务画像选配置，不支持“漏斗普遍省钱”。
+
+anytime 账本记录同轨迹 30/60/110 预算处 best_seen（如 gsm8k s42：6600 样本 .34 → 13200 样本 .53），不伪装成独立预算实验。全部 run `physical_samples == budget_used + test_samples` 逐 run 验证。
 
 ## 4.6 可复现入口与本章结论
 
@@ -188,6 +212,6 @@ A 主表四方法生成墙钟同量级（MC 任务 racer 比最快基线慢 10-2
 
 ### 4.6.3 本章结论
 
-冻结协议下 RACER 的最终画像：**宏平均最优（.4245）且对随机基线显著（+2.90pt, t(8)=2.55），对 CMA/PSO 方向一致但未达显著**；最大单任务优势在 gsm8k（+10.2pt vs CMA），truthfulqa 与 kcross 上搜索本身负增益、RACER 不放大 dev 噪声。组件贡献条件化：三引擎与竞速漏斗的不可替代性仅在 gsm8k 成立，其余任务上简化配置可反超（medical 的 full_eval、nlgraph 的 no_rung2/standard_SH）；plateau 切换全程零贡献，是从最终版中撤下的候选。legacy 轨道（4.3）在校正聚合后方向一致（RACER 宏平均最高），但协议债务使其只能历史参照。
+冻结协议下 RACER 的最终画像：**宏平均最优（.4245）且对随机基线显著（+2.90pt, t(8)=2.55；bootstrap CI [+1.15, +5.29] 不含零），对 CMA/PSO 方向一致但 CI 含零（[−0.09, +3.72] / [−0.25, +1.91]）**；平均优势集中于 gsm8k（去掉后 vs CMA 仅 +0.29pt），但该任务内三 seed 全胜且与消融机制互证；truthfulqa 与 kcross 上搜索本身负增益、RACER 不放大 dev 噪声。组件贡献条件化：三引擎与竞速漏斗的不可替代性仅在 gsm8k 成立，其余任务上简化配置可反超（medical 的 full_eval 更便宜也更好、nlgraph 的 no_rung2/standard_SH 反超）；plateau 切换全程零贡献，是从最终版中撤下的候选。legacy 轨道（4.3）在校正聚合后方向一致（RACER 宏平均最高），但协议债务使其只能历史参照。
 
 本章不宣称：任务级单点胜负显著、竞速漏斗普遍有益、RACER 在所有任务画像上占优。3 seed 功效限制与多消融探索性比较的多重性在第 6 章局限中正式说明。

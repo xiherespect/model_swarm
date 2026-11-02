@@ -97,10 +97,12 @@ pilot目标是 **尺度敏感性**，不是预期必涨。允许观察到降分�
 
 | 组 | run | 结论 |
 |---|---|---|
-| A 主比较 | 108 | 宏平均 RACER **.4245** > PSO .4161 > CMA .4107 > random .3955；vs random +2.90pt t(8)=2.55 显著，vs CMA/PSO 方向一致未显著；最大单任务优势 gsm8k +10.2pt，truthfulqa random 最优 |
-| B 消融 | 108 | full .4324 最高；组件价值任务反转：medical full_eval 反超+省30%时间、nlgraph no_rung2/standard_SH 反超、plateau 零贡献、三引擎与漏斗不可替代性仅 gsm8k 成立 |
+| A 主比较 | 108 | 宏平均 RACER **.4245** > PSO .4161 > CMA .4107 > random .3955；vs random +2.90pt t(8)=2.55 显著（CI [+1.15, +5.29]），vs CMA +1.38pt [−0.09, +3.72] / vs PSO +0.84pt [−0.25, +1.91] 含零；vs CMA 优势集中 gsm8k（去掉后 +0.29pt），但该任务三 seed 全胜且消融互证；mmlu_pro/medical/truthfulqa 搜索 vs random ≤1.0pt |
+| B 消融 | 108 | full .4324 最高；组件价值任务反转：medical full_eval 反超+省31%时间、nlgraph no_rung2/standard_SH 反超、plateau 零贡献、三引擎与漏斗不可替代性仅 gsm8k 成立 |
 | C 尺度 | 12 | 固定 scale 网格无稳定收益（gsm8k 逐分相同；nlgraph +0.9pt 全来自单 seed 单点） |
 | D kcross | 12 | RACER 对题干重叠不敏感（Δ+0.1pt 四方法最小）；该任务搜索负增益 |
+
+成本：RACER 同预算比最快基线慢 12–42%（gsm8k 最小 +12%）；无配置在所有任务同时最优分数与最低成本。功效核算：任务级显著（vs CMA）需约 47 任务（80% 功效），当前 9 任务方向一致 CI 含零——追加 seed 只压 seed 噪声，不解决任务间方差（SD 3.38pt）。
 
 ### 8.3 遗留与后续闸门
 
