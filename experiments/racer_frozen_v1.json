@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "spec_version": "racer_frozen_v1",
+  "protocol": "racer_eval_v1",
+  "created": "2026-10-23",
+  "frozen_config_overrides": {},
+  "box": {"lb": -0.5, "ub": 1.5},
+  "init": {
+    "size": 20,
+    "recipe": "10 onehot + 10 mix (70% dirichlet(0.6) convex / 30% scaled U(0.5,1.5))",
+    "shared_across_methods": true
+  },
+  "engines": {"ES": 0.4, "de": 0.4, "sum": 0.2},
+  "budget": {"samples_per_dev_item": 110, "note": "B_t = 110 x D_t (D_t = sum of full dev sizes of components)"},
+  "rungs": {"rung1_per_component": 50, "rung2_per_component": 100},
+  "final_selection": "raw argmax over first full-dev observations; ties -> earliest candidate id",
+  "seeds": [42, 43, 44],
+  "main_tasks": ["nlgraph", "gsm8k", "hellaswag", "mmlu", "mmlu_pro", "truthfulqa", "medical", "science", "culture"],
+  "ablation_tasks": ["nlgraph", "gsm8k", "hellaswag", "medical"],
+  "ablations": ["no_DE", "no_sum", "no_ES", "no_guard", "no_plateau", "no_rung2", "full_eval", "standard_SH", "cma_SH"],
+  "scale_tasks": ["nlgraph", "gsm8k"],
+  "kcross_task": "kcross",
+  "source_files": ["search_core.py", "search_frozen.py", "eval_protocol.py", "evaluate.py", "alpha_space.py"],
+  "notes": "legal excluded (dev/test overlap); kcross sensitivity reported separately with pre-frozen stem-deduped test subset; anchors (onehot/uniform) descriptive only."
+}

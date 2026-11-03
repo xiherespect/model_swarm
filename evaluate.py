@@ -1,6 +1,7 @@
 import json
 import math
 import time
+import os
 import torch
 import datetime
 import hashlib
@@ -204,7 +205,8 @@ def batch_generate_chat_template(model, tokenizer, prompts, gpu_id, batch_size=1
     return outputs
 
 # for objective 1: single task and objective 2: multi-task domains we directly generate
-def batch_generate(model, tokenizer, prompts, gpu_id, batch_size=10, max_new_tokens=10):
+def batch_generate(model, tokenizer, prompts, gpu_id, batch_size=10, max_new_tokens=10,
+                   return_details=False, batch_journal=None):
     num_batches = math.ceil(len(prompts) / batch_size)
     outputs = []
     # left padding + explicit attention mask: with right padding and pad==eos the mask
@@ -216,23 +218,55 @@ def batch_generate(model, tokenizer, prompts, gpu_id, batch_size=10, max_new_tok
         batch_prompts = prompts[start_idx:end_idx]
 
         enc = tokenizer(batch_prompts, return_tensors="pt", padding=True).to(f"cuda:{gpu_id}")
+        if batch_journal is not None:
+            batch_journal("started", start_idx, end_idx, None)
         output = model.generate(input_ids=enc.input_ids, attention_mask=enc.attention_mask, max_new_tokens=max_new_tokens, do_sample = False)
 
         for j in range(len(output)):
-            outputs.append(tokenizer.decode(output[j][enc.input_ids.shape[1]:], skip_special_tokens=True).strip())
+            continuation = output[j][enc.input_ids.shape[1]:]
+            if return_details:
+                eos = getattr(model.generation_config, "eos_token_id", None)
+                if eos is None:
+                    eos = tokenizer.eos_token_id
+                eos_ids = set(eos if isinstance(eos, (list, tuple)) else [eos])
+                tokens = continuation.tolist()
+                eos_index = next((k for k, token in enumerate(tokens)
+                                  if token in eos_ids), None)
+                generated = tokens[:eos_index + 1] if eos_index is not None else tokens
+                reason = ("eos" if eos_index is not None else
+                          "length" if len(tokens) >= max_new_tokens else "unknown")
+                text = tokenizer.decode(generated, skip_special_tokens=True).strip()
+                outputs.append({"prompt": batch_prompts[j], "raw": text,
+                                "generated_tokens": len(generated),
+                                "stop_reason": reason})
+            else:
+                text = tokenizer.decode(continuation, skip_special_tokens=True).strip()
+                outputs.append(text)
 
+        if batch_journal is not None:
+            batch_journal("completed", start_idx, end_idx,
+                          outputs[start_idx:end_idx])
         del enc, output
         torch.cuda.empty_cache()
 
     return outputs
 
 def _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
-                     split, subset_size, subset_start, result_dir):
+                     split, subset_size, subset_start, result_dir, protocol="strict_v1",
+                     subset_indices=None):
     """Versioned local evaluation; legacy artifacts are never overwritten."""
-    from eval_protocol import STRICT_EXACT_DATASETS, PROTOCOL_METADATA
+    from eval_protocol import (STRICT_EXACT_DATASETS, PROTOCOL_METADATA,
+                               instruction_suffix)
 
     if split not in ("dev", "test"):
         raise ValueError("unknown split")
+    if subset_indices is not None:
+        if (split != "test" or protocol != "racer_eval_v1" or
+                eval_type == "multitask" or subset_size is not None or
+                subset_start is not None or not isinstance(subset_indices, list) or
+                not subset_indices or any(type(i) is not int for i in subset_indices) or
+                any(a >= b for a, b in zip(subset_indices, subset_indices[1:]))):
+            raise ValueError("indexed subset requires ascending test indices in racer_eval_v1")
     if eval_type not in ("exact_match", "multiple_choice", "multitask"):
         raise ValueError("strict_v1 supports MC, numeric/boolean exact match and domains only")
     if eval_type == "exact_match" and dataset not in STRICT_EXACT_DATASETS:
@@ -254,17 +288,17 @@ def _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
         for child in children:
             with (data_root / (child + ".json")).open() as handle:
                 rows = json.load(handle)[split]
-            slice_bounds(len(rows), subset_size, subset_start, "strict_v1")
+            slice_bounds(len(rows), subset_size, subset_start, protocol)
         destination.mkdir(parents=True, exist_ok=False)
         scores = []
         for child in children:
             kind = "exact_match" if child in STRICT_EXACT_DATASETS else "multiple_choice"
             scores.append(_strict_evaluate(
                 model_path, kind, child, gpu_id, base_model, split,
-                subset_size, subset_start, destination / child))
-        score = harmonic_mean(scores, "strict_v1")
+                subset_size, subset_start, destination / child, protocol))
+        score = harmonic_mean(scores, protocol)
         with (destination / "evaluation.json").open("x") as handle:
-            json.dump({"scoring_version": "strict_v1", "split": split,
+            json.dump({"scoring_version": protocol, "split": split,
                        "aggregation_version": "harmonic_v1",
                        "subset_start": subset_start, "subset_size": subset_size,
                        "per_dataset_scores": dict(zip(children, scores)),
@@ -273,19 +307,29 @@ def _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
 
     with (data_root / (dataset + ".json")).open() as handle:
         data = json.load(handle)
-    start, stop = slice_bounds(len(data[split]), subset_size, subset_start, "strict_v1")
-    rows = data[split][start:stop]
+    if subset_indices is None:
+        start, stop = slice_bounds(len(data[split]), subset_size, subset_start, protocol)
+        indices = list(range(start, stop))
+    else:
+        if subset_indices[0] < 0 or subset_indices[-1] >= len(data[split]):
+            raise ValueError("indexed test subset is outside the split")
+        indices = subset_indices
+        start = stop = None
+    rows = [data[split][index] for index in indices]
     global ICL_PROMPT
     ICL_PROMPT = data.get("icl_prompt")
+    suffix = instruction_suffix(dataset, protocol) if eval_type == "exact_match" else ""
     prompts = [multiple_choice_prompt(row, dataset) if eval_type == "multiple_choice"
-               else row["question"] for row in rows]
+               else row["question"] + suffix for row in rows]
     destination.mkdir(parents=True, exist_ok=False)
-    metadata = {"scoring_version": "strict_v1", "protocol_metadata": PROTOCOL_METADATA["strict_v1"],
+    metadata = {"scoring_version": protocol, "protocol_metadata": PROTOCOL_METADATA[protocol],
                 "split_protocol_version": "slice_v1",
                 "aggregation_version": "mean_v1", "dataset": dataset,
                 "eval_type": eval_type, "split": split, "subset_start": start,
-                "subset_stop": stop, "base_model": str(base.resolve()),
+                "subset_stop": stop, "subset_indices": subset_indices,
+                "base_model": str(base.resolve()),
                 "adapter": str(adapter.resolve()), "n_samples": len(rows),
+                "instruction_suffix": suffix,
                 "do_sample": False, "max_new_tokens": 200 if dataset == "gsm8k" else 10,
                 "batch_size": 5 if dataset.startswith("nlgraph") else 10}
     local_model = local_tokenizer = None
@@ -296,22 +340,50 @@ def _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
         local_model = local_model.merge_and_unload().to(f"cuda:{gpu_id}")
         local_tokenizer = AutoTokenizer.from_pretrained(str(base), local_files_only=True)
         local_tokenizer.pad_token = local_tokenizer.eos_token
+        journal_path = destination / "attempt.jsonl"
+        def batch_journal(state, first, last, batch_outputs):
+            entry = {"state": state, "indices": indices[first:last]}
+            if batch_outputs is not None:
+                entry["generated_count"] = len(batch_outputs)
+                entry["generated_tokens"] = [item["generated_tokens"]
+                                             for item in batch_outputs]
+            with journal_path.open("a", encoding="utf-8") as journal:
+                journal.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                journal.flush()
+                os.fsync(journal.fileno())
+
         outputs = batch_generate(local_model, local_tokenizer, prompts, gpu_id,
                                  batch_size=metadata["batch_size"],
-                                 max_new_tokens=metadata["max_new_tokens"])
+                                 max_new_tokens=metadata["max_new_tokens"],
+                                 return_details=protocol == "racer_eval_v1",
+                                 **({"batch_journal": batch_journal}
+                                    if protocol == "racer_eval_v1" else {}))
         if len(outputs) != len(rows):
             raise RuntimeError("generation count does not match requested samples")
+        if protocol == "racer_eval_v1" and outputs and not isinstance(outputs[0], dict):
+            raise RuntimeError("racer_eval_v1 requires per-sample generation details")
+        details = outputs if protocol == "racer_eval_v1" else [None] * len(outputs)
         records = []
-        for index, row, prompt, raw in zip(range(start, stop), rows, prompts, outputs):
-            parsed = (parse_mc(row, raw, "strict_v1") if eval_type == "multiple_choice"
-                      else parse_exact_answer(dataset, raw, "strict_v1"))
+        for index, row, prompt, output, detail in zip(indices, rows, prompts,
+                                                     outputs, details):
+            raw = output["raw"] if detail is not None else output
+            if detail is not None:
+                if detail.get("prompt") != prompt or not isinstance(raw, str):
+                    raise RuntimeError("generation detail bookkeeping mismatch")
+            parsed = (parse_mc(row, raw, protocol) if eval_type == "multiple_choice"
+                      else parse_exact_answer(dataset, raw, protocol))
             value = (float(parsed == row["answer"]) if eval_type == "multiple_choice"
-                     else score_exact(dataset, row["answer"], raw, "strict_v1", split))
+                     else score_exact(dataset, row["answer"], raw, protocol, split))
             payload = json.dumps(row, sort_keys=True, ensure_ascii=False).encode()
-            records.append({"index": index, "question_sha256": hashlib.sha256(payload).hexdigest(),
-                            "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
-                            "raw_generation": raw, "parsed_answer": parsed,
-                            "gold": row["answer"], "score": value})
+            record = {"index": index, "question_sha256": hashlib.sha256(payload).hexdigest(),
+                      "question_text_sha256": hashlib.sha256(row["question"].encode("utf-8")).hexdigest(),
+                      "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+                      "raw_generation": raw, "parsed_answer": parsed,
+                      "gold": row["answer"], "score": value}
+            if detail is not None:
+                record["generated_tokens"] = detail.get("generated_tokens")
+                record["stop_reason"] = detail.get("stop_reason")
+            records.append(record)
         score = sum(record["score"] for record in records) / len(records)
         with (destination / "evaluation.json").open("x") as handle:
             json.dump({**metadata, "records": records, "score": score}, handle,
@@ -327,11 +399,11 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
 
     if skip_flag:
         return None
-    if protocol == "strict_v1":
+    if protocol in ("strict_v1", "racer_eval_v1"):
         if only_one_or_two is not None or ONLY_ONE_OR_TWO is not None:
             raise ValueError("strict_v1 does not support a single domain-component override")
         return _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
-                                "dev", subset_size, subset_start, result_dir)
+                                "dev", subset_size, subset_start, result_dir, protocol)
     if protocol != "legacy":
         raise ValueError("unknown evaluation protocol")
 
@@ -631,13 +703,16 @@ def evaluate(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-
         return get_effective_reliability(correct_flags, abstain_flags)
 
 # evaluation on the test set, similar to the dev set evaluation, but kept seperate in case the test eval might be dratiscally different from dev in generalization settings
-def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", only_one_or_two = None, obj4_save_generation=False, protocol="legacy", result_dir=None):
+def evaluate_test(model_path, eval_type, dataset, gpu_id, base_model = "google/gemma-7b-it", only_one_or_two = None, obj4_save_generation=False, protocol="legacy", result_dir=None, subset_indices=None):
 
-    if protocol == "strict_v1":
+    if protocol in ("strict_v1", "racer_eval_v1"):
         if only_one_or_two is not None or ONLY_ONE_OR_TWO is not None:
             raise ValueError("strict_v1 does not support a single domain-component override")
         return _strict_evaluate(model_path, eval_type, dataset, gpu_id, base_model,
-                                "test", None, None, result_dir)
+                                "test", None, None, result_dir, protocol,
+                                subset_indices=subset_indices)
+    if subset_indices is not None:
+        raise ValueError("indexed test subset requires racer_eval_v1")
     if protocol != "legacy":
         raise ValueError("unknown evaluation protocol")
     global model

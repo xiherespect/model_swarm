@@ -19,12 +19,13 @@ def strict_namespace():
                     if isinstance(node, ast.FunctionDef) and node.name == '_strict_evaluate')
     import eval_protocol
     namespace = dict(json=json, Path=Path, hashlib=__import__('hashlib'),
-                     __file__=str(ROOT / 'evaluate.py'),
+                     __file__=str(ROOT / 'evaluate.py'), os=__import__('os'),
                      slice_bounds=eval_protocol.slice_bounds,
                      harmonic_mean=eval_protocol.harmonic_mean,
                      parse_mc=eval_protocol.parse_mc,
                      parse_exact_answer=eval_protocol.parse_exact_answer,
                      score_exact=eval_protocol.score_exact,
+                     instruction_suffix=eval_protocol.instruction_suffix,
                      multitask_domain_dataset_dict={'medical': ['medqa', 'medmcqa']})
     namespace['torch'] = Mock()
     namespace['AutoModelForCausalLM'] = Mock()
@@ -37,6 +38,50 @@ def strict_namespace():
 
 
 class StrictIntegrationTest(unittest.TestCase):
+    def test_generation_details_count_eos_before_padding(self):
+        tree = ast.parse((ROOT / 'evaluate.py').read_text())
+        function = next(node for node in tree.body
+                        if isinstance(node, ast.FunctionDef) and node.name == 'batch_generate')
+        ns = {'math': __import__('math'), 'tqdm': lambda x: x, 'torch': Mock()}
+        exec(compile(ast.Module(body=[function], type_ignores=[]), '<generate>', 'exec'), ns)
+
+        class Tokens(list):
+            @property
+            def shape(self):
+                return (len(self),)
+
+            def __getitem__(self, index):
+                value = super().__getitem__(index)
+                return Tokens(value) if isinstance(index, slice) else value
+
+            def tolist(self):
+                return list(self)
+
+        class Inputs:
+            input_ids = Mock(shape=(2, 3))
+            attention_mask = Mock()
+
+            def to(self, device):
+                return self
+
+        tokenizer = Mock(eos_token_id=2)
+        tokenizer.side_effect = lambda *args, **kwargs: Inputs()
+        tokenizer.decode.side_effect = lambda tokens, **kwargs: str(list(tokens))
+        model = Mock()
+        model.generation_config.eos_token_id = 2
+        model.generate.return_value = [Tokens([8, 8, 8, 5, 2, 2]),
+                                       Tokens([8, 8, 8, 5, 6, 7])]
+        journal = []
+        records = ns['batch_generate'](model, tokenizer, ['first', 'second'], 0,
+                                       batch_size=2, max_new_tokens=3,
+                                       return_details=True,
+                                       batch_journal=lambda *entry: journal.append(entry))
+        self.assertEqual([entry[0] for entry in journal], ['started', 'completed'])
+        self.assertEqual(journal[1][3], records)
+        self.assertEqual([row['generated_tokens'] for row in records], [2, 3])
+        self.assertEqual([row['stop_reason'] for row in records], ['eos', 'length'])
+        self.assertEqual(records[0]['raw'], '[5, 2]')
+
     def test_exact_raw_archive_and_local_loading(self):
         ns = strict_namespace()
         with tempfile.TemporaryDirectory() as directory:
@@ -58,6 +103,69 @@ class StrictIntegrationTest(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 ns['_strict_evaluate'](str(adapter), 'exact_match', 'gsm8k', 0,
                                        str(base), 'dev', 1, 0, output)
+
+    def test_racer_details_are_scored_and_archived(self):
+        ns = strict_namespace()
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory) / 'base'
+            adapter = Path(directory) / 'adapter'
+            base.mkdir()
+            adapter.mkdir()
+            data = json.loads((ROOT / 'data/eval/gsm8k.json').read_text())
+            answer = str(data['dev'][0]['answer'])
+            ns['batch_generate'].side_effect = lambda model, tokenizer, prompts, gpu_id, **kw: [
+                {'prompt': prompts[0], 'raw': answer, 'generated_tokens': 4,
+                 'stop_reason': 'eos'}]
+            output = Path(directory) / 'racer'
+            result = ns['_strict_evaluate'](str(adapter), 'exact_match', 'gsm8k', 0,
+                                           str(base), 'dev', 1, 0, output, 'racer_eval_v1')
+            stored = json.loads((output / 'evaluation.json').read_text())
+            self.assertEqual(result, 1.0)
+            self.assertEqual(stored['records'][0]['raw_generation'], answer)
+            self.assertEqual(stored['records'][0]['generated_tokens'], 4)
+            self.assertEqual(stored['records'][0]['stop_reason'], 'eos')
+            self.assertTrue(ns['batch_generate'].call_args.kwargs['return_details'])
+            callback = ns['batch_generate'].call_args.kwargs['batch_journal']
+            callback('started', 0, 1, None)
+            callback('completed', 0, 1, [{'generated_tokens': 4}])
+            journal = [json.loads(line) for line in (output / 'attempt.jsonl').read_text().splitlines()]
+            self.assertEqual([entry['state'] for entry in journal], ['started', 'completed'])
+            self.assertEqual(journal[1]['indices'], [0])
+            self.assertEqual(journal[1]['generated_tokens'], [4])
+
+    def test_indexed_test_subset_preserves_original_indices(self):
+        ns = strict_namespace()
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory) / 'base'
+            adapter = Path(directory) / 'adapter'
+            base.mkdir()
+            adapter.mkdir()
+            data = json.loads((ROOT / 'data/eval/knowledge_crosswords.json').read_text())
+            indices = [2, 7]
+            ns['batch_generate'].side_effect = lambda model, tokenizer, prompts, gpu_id, **kw: [
+                {'prompt': prompt, 'raw': 'A', 'generated_tokens': 2,
+                 'stop_reason': 'eos'} for prompt in prompts]
+            output = Path(directory) / 'indexed'
+            ns['_strict_evaluate'](str(adapter), 'multiple_choice', 'knowledge_crosswords',
+                                   0, str(base), 'test', None, None, output,
+                                   'racer_eval_v1', subset_indices=indices)
+            stored = json.loads((output / 'evaluation.json').read_text())
+            self.assertEqual(stored['subset_indices'], indices)
+            self.assertEqual([row['index'] for row in stored['records']], indices)
+            self.assertEqual(stored['n_samples'], 2)
+            for index, record in zip(indices, stored['records']):
+                self.assertEqual(record['question_text_sha256'], __import__('hashlib').sha256(
+                    data['test'][index]['question'].encode('utf-8')).hexdigest())
+            with self.assertRaises(ValueError):
+                ns['_strict_evaluate'](str(adapter), 'multiple_choice',
+                                       'knowledge_crosswords', 0, str(base), 'test',
+                                       None, None, Path(directory) / 'duplicate',
+                                       'racer_eval_v1', subset_indices=[2, 2])
+            with self.assertRaises(ValueError):
+                ns['_strict_evaluate'](str(adapter), 'multiple_choice',
+                                       'knowledge_crosswords', 0, str(base), 'test',
+                                       None, None, Path(directory) / 'out_of_bounds',
+                                       'racer_eval_v1', subset_indices=[10000])
 
     def test_invalid_slice_rejected_before_loading(self):
         ns = strict_namespace()
@@ -108,10 +216,10 @@ class StrictIntegrationTest(unittest.TestCase):
         top_level = ast.Module(body=[node for node in tree.body
                                     if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))],
                                type_ignores=[])
-        calls = [ast.unparse(node.func) for node in ast.walk(top_level)
+        calls = [ast.dump(node.func) for node in ast.walk(top_level)
                  if isinstance(node, ast.Call)]
-        self.assertFalse(any('discovery.build' in call or 'vertexai.init' in call
-                             or 'GenerativeModel' in call for call in calls))
+        self.assertFalse(any("attr='build'" in call or "attr='init'" in call
+                             or "id='GenerativeModel'" in call for call in calls))
 
 
 if __name__ == '__main__':

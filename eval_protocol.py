@@ -8,6 +8,9 @@ matching, numeric substring scoring, gsm8k's dev/test window mismatch, and the
 nlgraph, nlgraph_mini and gsm8k have strict exact-answer support. Other exact
 match tasks retain the historical task-specific substring rule, NOT a claim of
 strict scoring; callers requiring full support must gate on STRICT_EXACT_DATASETS.
+``racer_eval_v1`` keeps the same grammars/slices/aggregation and additionally
+appends a frozen final-answer instruction to supported exact-match prompts
+(dev and test alike); it must not be mixed into strict_v1 archives.
 No model, network, file IO, reward model or cloud dependency belongs here.
 """
 
@@ -17,8 +20,22 @@ import unicodedata
 from decimal import Decimal
 
 
-PROTOCOLS = frozenset({"legacy", "strict_v1"})
+PROTOCOLS = frozenset({"legacy", "strict_v1", "racer_eval_v1"})
 STRICT_EXACT_DATASETS = frozenset({"nlgraph", "nlgraph_mini", "gsm8k"})
+# racer_eval_v1 shares the strict grammar/slicing/aggregation and only adds a
+# frozen final-answer instruction for supported exact-match prompts. It is a
+# new protocol identity, never silently merged into strict_v1 archives.
+_STRICT_LIKE = frozenset({"strict_v1", "racer_eval_v1"})
+INSTRUCTION_SUFFIX_VERSION = "racer_instructions_v1"
+# Frozen final-answer instructions appended verbatim to supported exact-match
+# prompts under racer_eval_v1, on both dev and test. Multiple-choice prompts are
+# unchanged. Values are frozen before any formal run; the dev gate may only
+# replace the whole map (new version string), never edit scores afterwards.
+RACER_EVAL_INSTRUCTIONS = {
+    "nlgraph": " Answer with only the final answer: a number, or Yes or No. Do not explain.",
+    "nlgraph_mini": " Answer with only the final answer: a number, or Yes or No. Do not explain.",
+    "gsm8k": " Work through the problem, then end your reply with the final numeric answer after #### .",
+}
 PROTOCOL_METADATA = {
     "legacy": {
         "mc": "legacy_substring_v0",
@@ -34,12 +51,33 @@ PROTOCOL_METADATA = {
         "slice": "nonempty_in_bounds_v1",
         "aggregation": "nonnegative_pair_harmonic_zero_is_zero_v1",
     },
+    "racer_eval_v1": {
+        "mc": "explicit_label_or_unique_complete_option_v1",
+        "exact": "partial_numeric_and_nlgraph_boolean_v1",
+        "exact_supported_datasets": tuple(sorted(STRICT_EXACT_DATASETS)),
+        "exact_other_datasets": "legacy_substring_unchanged",
+        "slice": "nonempty_in_bounds_v1",
+        "aggregation": "nonnegative_pair_harmonic_zero_is_zero_v1",
+        "instructions": INSTRUCTION_SUFFIX_VERSION,
+    },
 }
 
 
 def _check_protocol(protocol):
     if protocol not in PROTOCOLS:
         raise ValueError("unknown evaluation protocol: {!r}".format(protocol))
+
+
+def instruction_suffix(dataset, protocol):
+    """Frozen final-answer instruction for a dataset, or ``''`` when none.
+
+    Only racer_eval_v1 appends instructions, and only for exact-match datasets
+    with a frozen entry; strict_v1 and legacy prompts stay byte-identical.
+    """
+    _check_protocol(protocol)
+    if protocol != "racer_eval_v1":
+        return ""
+    return RACER_EVAL_INSTRUCTIONS.get(dataset, "")
 
 
 def _text(text):
@@ -204,7 +242,7 @@ def score_exact(dataset, answer, output, protocol="legacy", split="dev"):
     _check_protocol(protocol)
     if split not in {"dev", "test"}:
         raise ValueError("split must be 'dev' or 'test'")
-    if protocol == "strict_v1" and dataset in STRICT_EXACT_DATASETS:
+    if protocol in _STRICT_LIKE and dataset in STRICT_EXACT_DATASETS:
         gold = _scalar(answer, dataset in {"nlgraph", "nlgraph_mini"})
         parsed = parse_exact_answer(dataset, output, protocol=protocol)
         return float(gold is not None and parsed is not None and gold == parsed)
