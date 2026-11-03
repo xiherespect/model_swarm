@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T07:16:04.517266+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "full",
+  "task": "truthfulqa",
+  "seed": 43
+}

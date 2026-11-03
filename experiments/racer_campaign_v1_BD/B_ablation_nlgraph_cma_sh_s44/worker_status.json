@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-24T13:30:18.063801+00:00",
+  "method": "cma_sh",
+  "ablation": "full",
+  "task": "nlgraph",
+  "seed": 44
+}

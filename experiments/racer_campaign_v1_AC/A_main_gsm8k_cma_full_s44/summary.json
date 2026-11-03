@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "gsm8k",
+  "seed": 44,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 22000,
+  "budget_used": 21600.0,
+  "best_dev": 0.365,
+  "best_alpha": [
+    0.8421160750987636,
+    0.029137947973406415,
+    -0.15823604456369433,
+    -0.04007117300308491,
+    0.16447814757011006,
+    -0.2292776432693493,
+    0.2649974074017377,
+    0.005965207791203603,
+    0.04441469532694639,
+    0.5056307309795651
+  ],
+  "best_candidate_id": 101,
+  "test_score": 0.314,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 108,
+  "anytime": [
+    {
+      "budget": 6600.0,
+      "best": 0.3
+    },
+    {
+      "budget": 13200.0,
+      "best": 0.35
+    },
+    {
+      "budget": 22000.0,
+      "best": 0.365
+    }
+  ],
+  "physical_samples": 22600,
+  "test_samples": 1000,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 11136.514020994771,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-24T17:58:40.359512+00:00"
+}

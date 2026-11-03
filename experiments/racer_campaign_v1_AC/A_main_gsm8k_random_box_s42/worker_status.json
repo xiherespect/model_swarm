@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-24T05:34:33.312347+00:00",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "gsm8k",
+  "seed": 42
+}

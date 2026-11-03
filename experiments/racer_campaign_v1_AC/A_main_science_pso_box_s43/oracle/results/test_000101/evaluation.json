@@ -1,0 +1,12 @@
+{
+  "scoring_version": "racer_eval_v1",
+  "split": "test",
+  "aggregation_version": "harmonic_v1",
+  "subset_start": null,
+  "subset_size": null,
+  "per_dataset_scores": {
+    "scifact": 0.5018796992481203,
+    "stem": 0.14376321353065538
+  },
+  "score": 0.22350385001261794
+}

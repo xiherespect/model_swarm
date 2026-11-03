@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "truthfulqa",
+  "seed": 42,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 22000,
+  "budget_used": 22000.0,
+  "best_dev": 0.52,
+  "best_alpha": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0
+  ],
+  "best_candidate_id": 8,
+  "test_score": 0.4392220421393841,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 110,
+  "anytime": [
+    {
+      "budget": 6600.0,
+      "best": 0.52
+    },
+    {
+      "budget": 13200.0,
+      "best": 0.52
+    },
+    {
+      "budget": 22000.0,
+      "best": 0.52
+    }
+  ],
+  "physical_samples": 22617,
+  "test_samples": 617,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 1786.0043864944018,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-25T07:23:04.836446+00:00"
+}

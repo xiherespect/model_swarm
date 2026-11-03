@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "mmlu_pro",
+  "seed": 43,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 7700,
+  "budget_used": 7560.0,
+  "best_dev": 0.38571428571428573,
+  "best_alpha": [
+    0.19545876443395396,
+    0.14853244073025682,
+    0.06663444797852468,
+    0.03143499067883416,
+    0.003092809700322257,
+    0.034754469647245344,
+    0.022786526023473273,
+    0.08424564007041187,
+    0.07744758231297147,
+    0.3356123284240062
+  ],
+  "best_candidate_id": 16,
+  "test_score": 0.227,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 108,
+  "anytime": [
+    {
+      "budget": 2310.0,
+      "best": 0.38571428571428573
+    },
+    {
+      "budget": 4620.0,
+      "best": 0.38571428571428573
+    },
+    {
+      "budget": 7700.0,
+      "best": 0.38571428571428573
+    }
+  ],
+  "physical_samples": 8560,
+  "test_samples": 1000,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 1347.2706671003252,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-25T05:08:59.552157+00:00"
+}

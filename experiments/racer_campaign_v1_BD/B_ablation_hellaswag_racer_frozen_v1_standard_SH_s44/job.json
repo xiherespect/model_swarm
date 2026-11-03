@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_BD/snapshot.json",
+  "run": {
+    "id": "B_ablation_hellaswag_racer_frozen_v1_standard_SH_s44",
+    "group": "B_ablation",
+    "task": "hellaswag",
+    "method": "racer_frozen_v1",
+    "ablation": "standard_SH",
+    "seed": 44,
+    "run_test": true,
+    "budget_samples": 22000,
+    "status": "pending"
+  }
+}

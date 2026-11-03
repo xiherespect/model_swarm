@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_BD/snapshot.json",
+  "run": {
+    "id": "B_ablation_nlgraph_racer_frozen_v1_no_rung2_s44",
+    "group": "B_ablation",
+    "task": "nlgraph",
+    "method": "racer_frozen_v1",
+    "ablation": "no_rung2",
+    "seed": 44,
+    "run_test": true,
+    "budget_samples": 22000,
+    "status": "pending"
+  }
+}

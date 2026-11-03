@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T16:59:20.072687+00:00",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "science",
+  "seed": 42
+}

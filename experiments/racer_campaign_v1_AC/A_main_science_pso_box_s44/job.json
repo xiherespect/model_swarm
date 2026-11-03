@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_AC/snapshot.json",
+  "run": {
+    "id": "A_main_science_pso_box_s44",
+    "group": "A_main",
+    "task": "science",
+    "method": "pso_box",
+    "ablation": "full",
+    "seed": 44,
+    "run_test": true,
+    "budget_samples": 25300,
+    "status": "pending"
+  }
+}

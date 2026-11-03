@@ -1,0 +1,12 @@
+{
+  "scoring_version": "racer_eval_v1",
+  "split": "test",
+  "aggregation_version": "harmonic_v1",
+  "subset_start": null,
+  "subset_size": null,
+  "per_dataset_scores": {
+    "normad_country": 0.5395,
+    "normad_value": 0.543
+  },
+  "score": 0.5412443418013857
+}

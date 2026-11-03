@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T05:10:18.799070+00:00",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "mmlu_pro",
+  "seed": 43
+}

@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-24T23:09:58.152567+00:00",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "hellaswag",
+  "seed": 44
+}

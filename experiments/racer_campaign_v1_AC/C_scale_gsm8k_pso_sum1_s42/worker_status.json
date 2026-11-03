@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-26T14:25:44.740664+00:00",
+  "method": "pso_sum1",
+  "ablation": "full",
+  "task": "gsm8k",
+  "seed": 42
+}

@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "culture",
+  "seed": 42,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 110000,
+  "budget_used": 108000.0,
+  "best_dev": 0.5227686424474187,
+  "best_alpha": [
+    -0.28142035337289156,
+    -0.06995152344583033,
+    -0.0894250860832003,
+    -0.37525158988032187,
+    -0.255051941162573,
+    -0.1260242117815117,
+    0.03964532694219916,
+    0.313756265197868,
+    -0.020807997880572235,
+    0.1207270005773544
+  ],
+  "best_candidate_id": 49,
+  "test_score": 0.5447357798165138,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 108,
+  "anytime": [
+    {
+      "budget": 33000.0,
+      "best": 0.5177220077220077
+    },
+    {
+      "budget": 66000.0,
+      "best": 0.5227686424474187
+    },
+    {
+      "budget": 110000.0,
+      "best": 0.5227686424474187
+    }
+  ],
+  "physical_samples": 112000,
+  "test_samples": 4000,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 6524.640878925566,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-26T01:16:28.449372+00:00"
+}

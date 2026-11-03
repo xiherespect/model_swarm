@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T05:33:50.962343+00:00",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "mmlu_pro",
+  "seed": 44
+}

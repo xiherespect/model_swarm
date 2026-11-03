@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T09:00:58.624309+00:00",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "truthfulqa",
+  "seed": 44
+}

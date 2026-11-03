@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-24T21:12:33.203731+00:00",
+  "method": "pso_box",
+  "ablation": "full",
+  "task": "hellaswag",
+  "seed": 42
+}

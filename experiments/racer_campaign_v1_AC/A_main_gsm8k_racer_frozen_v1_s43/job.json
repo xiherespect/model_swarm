@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_AC/snapshot.json",
+  "run": {
+    "id": "A_main_gsm8k_racer_frozen_v1_s43",
+    "group": "A_main",
+    "task": "gsm8k",
+    "method": "racer_frozen_v1",
+    "ablation": "full",
+    "seed": 43,
+    "run_test": true,
+    "budget_samples": 22000,
+    "status": "pending"
+  }
+}

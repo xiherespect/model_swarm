@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_BD/snapshot.json",
+  "run": {
+    "id": "D_kcross_kcross_random_box_s42",
+    "group": "D_kcross",
+    "task": "kcross",
+    "method": "random_box",
+    "ablation": "full",
+    "seed": 42,
+    "run_test": true,
+    "budget_samples": 22000,
+    "status": "pending"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T20:14:07.868757+00:00",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "science",
+  "seed": 43
+}

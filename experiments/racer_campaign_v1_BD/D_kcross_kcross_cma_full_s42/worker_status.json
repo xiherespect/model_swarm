@@ -1,0 +1,8 @@
+{
+  "status": "searching",
+  "started_at": "2026-10-27T19:02:43.422848+00:00",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "kcross",
+  "seed": 42
+}

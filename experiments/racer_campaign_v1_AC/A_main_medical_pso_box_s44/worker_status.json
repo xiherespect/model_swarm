@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T15:44:59.530136+00:00",
+  "method": "pso_box",
+  "ablation": "full",
+  "task": "medical",
+  "seed": 44
+}

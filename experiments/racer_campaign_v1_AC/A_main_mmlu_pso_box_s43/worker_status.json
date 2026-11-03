@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T02:12:08.229014+00:00",
+  "method": "pso_box",
+  "ablation": "full",
+  "task": "mmlu",
+  "seed": 43
+}

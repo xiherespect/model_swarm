@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-29T10:35:40.069700+00:00",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "kcross",
+  "seed": 44
+}

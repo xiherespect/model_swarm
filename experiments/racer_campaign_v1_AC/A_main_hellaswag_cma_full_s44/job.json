@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_AC/snapshot.json",
+  "run": {
+    "id": "A_main_hellaswag_cma_full_s44",
+    "group": "A_main",
+    "task": "hellaswag",
+    "method": "cma_full",
+    "ablation": "full",
+    "seed": 44,
+    "run_test": true,
+    "budget_samples": 22000,
+    "status": "pending"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T07:55:52.417619+00:00",
+  "method": "pso_box",
+  "ablation": "full",
+  "task": "truthfulqa",
+  "seed": 43
+}

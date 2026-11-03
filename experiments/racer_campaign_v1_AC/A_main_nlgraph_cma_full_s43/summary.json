@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "nlgraph",
+  "seed": 43,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 22000,
+  "budget_used": 21600.0,
+  "best_dev": 0.35,
+  "best_alpha": [
+    0.6550176657604219,
+    -0.49611544301512267,
+    0.2819809209097401,
+    -0.230943596703858,
+    -0.2872065859649932,
+    -0.09800760568005415,
+    -0.49024175146052507,
+    -0.3313186991382705,
+    0.7624421342603983,
+    -0.12251729430037232
+  ],
+  "best_candidate_id": 101,
+  "test_score": 0.339,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 108,
+  "anytime": [
+    {
+      "budget": 6600.0,
+      "best": 0.345
+    },
+    {
+      "budget": 13200.0,
+      "best": 0.345
+    },
+    {
+      "budget": 22000.0,
+      "best": 0.35
+    }
+  ],
+  "physical_samples": 22600,
+  "test_samples": 1000,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 5217.175881546922,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-23T21:46:50.637640+00:00"
+}

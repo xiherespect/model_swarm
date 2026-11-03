@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_AC/snapshot.json",
+  "run": {
+    "id": "A_main_culture_random_box_s43",
+    "group": "A_main",
+    "task": "culture",
+    "method": "random_box",
+    "ablation": "full",
+    "seed": 43,
+    "run_test": true,
+    "budget_samples": 110000,
+    "status": "pending"
+  }
+}

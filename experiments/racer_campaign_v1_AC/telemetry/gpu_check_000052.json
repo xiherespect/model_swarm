@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-10-24T20:41:15.784658+00:00",
+  "requested": 1,
+  "excluded": [],
+  "queries": {
+    "gpu": {
+      "command": [
+        "nvidia-smi",
+        "--query-gpu=index,uuid,memory.used,utilization.gpu",
+        "--format=csv,noheader,nounits"
+      ],
+      "stdout": "0, GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9, 3438, 84\n1, GPU-30ce8cdf-5e2f-f4d2-3011-17a29df6d474, 1, 0\n2, GPU-abcfe5f2-d855-ce45-d072-0765cdc1fb58, 3422, 80\n3, GPU-0a0b089d-665e-433d-554e-d638fcd58e38, 3390, 61\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    "compute-apps": {
+      "command": [
+        "nvidia-smi",
+        "--query-compute-apps=gpu_uuid,pid",
+        "--format=csv,noheader,nounits"
+      ],
+      "stdout": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9, 2639464\nGPU-abcfe5f2-d855-ce45-d072-0765cdc1fb58, 2645417\nGPU-0a0b089d-665e-433d-554e-d638fcd58e38, 2674710\n",
+      "stderr": "",
+      "returncode": 0
+    }
+  }
+}

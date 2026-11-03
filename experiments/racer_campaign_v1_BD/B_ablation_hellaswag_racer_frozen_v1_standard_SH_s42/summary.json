@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "racer_frozen_v1",
+  "ablation": "standard_SH",
+  "task": "hellaswag",
+  "seed": 42,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 22000,
+  "budget_used": 21600.0,
+  "best_dev": 0.63,
+  "best_alpha": [
+    0.021306887884649517,
+    0.2045633456981691,
+    0.5504584203209104,
+    -0.0327604028307726,
+    0.2758576082331582,
+    0.018369940901723524,
+    0.046332577264608814,
+    -0.08015562487653967,
+    -0.0033007451378604504,
+    0.027309767789109162
+  ],
+  "best_candidate_id": 159,
+  "test_score": 0.564,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 196,
+  "anytime": [
+    {
+      "budget": 6600.0,
+      "best": 0.605
+    },
+    {
+      "budget": 13200.0,
+      "best": 0.625
+    },
+    {
+      "budget": 22000.0,
+      "best": 0.63
+    }
+  ],
+  "physical_samples": 22600,
+  "test_samples": 1000,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 3178.600968854036,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-26T15:53:45.653644+00:00"
+}

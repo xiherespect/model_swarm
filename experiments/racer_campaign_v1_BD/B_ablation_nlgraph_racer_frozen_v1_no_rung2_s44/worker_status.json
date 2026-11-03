@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-24T10:35:02.192462+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "no_rung2",
+  "task": "nlgraph",
+  "seed": 44
+}

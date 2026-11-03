@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-26T20:48:27.286910+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "no_guard",
+  "task": "hellaswag",
+  "seed": 44
+}

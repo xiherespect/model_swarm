@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-26T05:12:58.111382+00:00",
+  "method": "pso_box",
+  "ablation": "full",
+  "task": "culture",
+  "seed": 43
+}

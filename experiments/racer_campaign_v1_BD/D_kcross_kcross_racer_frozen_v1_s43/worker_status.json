@@ -1,0 +1,8 @@
+{
+  "status": "loading",
+  "started_at": "2026-10-27T19:37:21.577929+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "full",
+  "task": "kcross",
+  "seed": 43
+}

@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-24T00:28:34.613853+00:00",
+  "method": "pso_box",
+  "ablation": "full",
+  "task": "nlgraph",
+  "seed": 44
+}

@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T07:23:10.376524+00:00",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "truthfulqa",
+  "seed": 43
+}

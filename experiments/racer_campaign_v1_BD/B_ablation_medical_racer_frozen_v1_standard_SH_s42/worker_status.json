@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-27T04:09:36.420550+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "standard_SH",
+  "task": "medical",
+  "seed": 42
+}

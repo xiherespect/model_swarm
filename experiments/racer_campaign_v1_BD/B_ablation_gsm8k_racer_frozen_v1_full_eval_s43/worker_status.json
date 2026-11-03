@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T15:06:05.996442+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "full_eval",
+  "task": "gsm8k",
+  "seed": 43
+}

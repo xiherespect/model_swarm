@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-25T23:20:15.181353+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "full",
+  "task": "culture",
+  "seed": 42
+}

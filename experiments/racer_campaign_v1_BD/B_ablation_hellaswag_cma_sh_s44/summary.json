@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "cma_sh",
+  "ablation": "full",
+  "task": "hellaswag",
+  "seed": 44,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 22000,
+  "budget_used": 21600.0,
+  "best_dev": 0.645,
+  "best_alpha": [
+    0.29317501921273725,
+    -0.3996176980924476,
+    -0.4813218301353127,
+    0.349964472904206,
+    -0.1364586571383826,
+    -0.0926661569867181,
+    0.02390293196926513,
+    0.19877514265978835,
+    -0.498866015484265,
+    -0.029420343958872757
+  ],
+  "best_candidate_id": 175,
+  "test_score": 0.568,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 196,
+  "anytime": [
+    {
+      "budget": 6600.0,
+      "best": 0.54
+    },
+    {
+      "budget": 13200.0,
+      "best": 0.56
+    },
+    {
+      "budget": 22000.0,
+      "best": 0.645
+    }
+  ],
+  "physical_samples": 22600,
+  "test_samples": 1000,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 3394.0125339776278,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-26T23:46:42.165632+00:00"
+}

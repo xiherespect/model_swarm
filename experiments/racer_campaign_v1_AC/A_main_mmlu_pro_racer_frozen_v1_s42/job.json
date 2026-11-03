@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_AC/snapshot.json",
+  "run": {
+    "id": "A_main_mmlu_pro_racer_frozen_v1_s42",
+    "group": "A_main",
+    "task": "mmlu_pro",
+    "method": "racer_frozen_v1",
+    "ablation": "full",
+    "seed": 42,
+    "run_test": true,
+    "budget_samples": 7700,
+    "status": "pending"
+  }
+}

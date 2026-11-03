@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "pso_box",
+  "ablation": "full",
+  "task": "science",
+  "seed": 43,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 25300,
+  "budget_used": 23000.0,
+  "best_dev": 0.44316546762589926,
+  "best_alpha": [
+    0.012863274645829703,
+    0.05244654822798875,
+    0.12305982465876762,
+    0.024478077379264176,
+    0.010711085829736093,
+    -0.12264567101296159,
+    0.021978230093675798,
+    0.03353040954634137,
+    0.699733852701087,
+    0.11097799719059152
+  ],
+  "best_candidate_id": 62,
+  "test_score": 0.22350385001261794,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 100,
+  "anytime": [
+    {
+      "budget": 7590.0,
+      "best": 0.4138613861386139
+    },
+    {
+      "budget": 15180.0,
+      "best": 0.44316546762589926
+    },
+    {
+      "budget": 25300.0,
+      "best": 0.44316546762589926
+    }
+  ],
+  "physical_samples": 24005,
+  "test_samples": 1005,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 3416.550997159444,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-25T21:10:29.561519+00:00"
+}

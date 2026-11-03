@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-26T09:55:20.777148+00:00",
+  "method": "cma_sh",
+  "ablation": "full",
+  "task": "gsm8k",
+  "seed": 44
+}

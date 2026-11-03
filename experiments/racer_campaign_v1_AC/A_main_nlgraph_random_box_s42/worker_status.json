@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-23T18:44:53.181730+00:00",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "nlgraph",
+  "seed": 42
+}

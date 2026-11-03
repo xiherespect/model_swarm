@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "racer_frozen_v1",
+  "ablation": "no_DE",
+  "task": "medical",
+  "seed": 42,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 44000,
+  "budget_used": 43300.0,
+  "best_dev": 0.5075980392156862,
+  "best_alpha": [
+    0.0519484742363059,
+    0.16745965780458127,
+    0.04785546583395972,
+    0.1591913300285576,
+    0.11702203529606794,
+    -0.04300310845166433,
+    0.5668972590123542,
+    0.07828728787309186,
+    0.13335454420299797,
+    0.004423973110029671
+  ],
+  "best_candidate_id": 122,
+  "test_score": 0.42460235294117643,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 157,
+  "anytime": [
+    {
+      "budget": 13200.0,
+      "best": 0.49755000000000005
+    },
+    {
+      "budget": 26400.0,
+      "best": 0.5025742574257426
+    },
+    {
+      "budget": 44000.0,
+      "best": 0.5075980392156862
+    }
+  ],
+  "physical_samples": 45300,
+  "test_samples": 2000,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 5581.869237210136,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-27T00:48:32.882608+00:00"
+}

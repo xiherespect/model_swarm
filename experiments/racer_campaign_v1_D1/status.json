@@ -1,0 +1,298 @@
+{
+  "status": "succeeded",
+  "created_at": "2026-10-29T07:19:40.322428+00:00",
+  "rows": [
+    {
+      "id": "D_kcross_kcross_racer_frozen_v1_s42",
+      "group": "D_kcross",
+      "task": "kcross",
+      "method": "racer_frozen_v1",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": true,
+      "budget_samples": 22000,
+      "status": "succeeded",
+      "run_dir": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_D1/D_kcross_kcross_racer_frozen_v1_s42",
+      "gpu": 0,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9",
+      "started_at": "2026-10-29T07:19:40.705932+00:00",
+      "pid": 249620,
+      "summary": {
+        "status": "succeeded",
+        "method": "racer_frozen_v1",
+        "ablation": "full",
+        "task": "kcross",
+        "seed": 42,
+        "stop_reason": "budget_exhausted",
+        "budget_samples": 22000,
+        "budget_used": 21700.0,
+        "best_dev": 0.445,
+        "best_alpha": [
+          -0.10845809763079735,
+          -0.06917742756113074,
+          0.24245375767777663,
+          -0.12879230231754693,
+          0.12271533646906058,
+          -0.13162458175652797,
+          0.38565474381666387,
+          -0.5,
+          1.5,
+          -0.13117417846296375
+        ],
+        "best_candidate_id": 114,
+        "test_score": 0.388,
+        "kcross_filtered_test_score": 0.3882978723404255,
+        "n_candidates": 164,
+        "anytime": [
+          {
+            "budget": 6600.0,
+            "best": 0.43
+          },
+          {
+            "budget": 13200.0,
+            "best": 0.44
+          },
+          {
+            "budget": 22000.0,
+            "best": 0.445
+          }
+        ],
+        "physical_samples": 23264,
+        "test_samples": 1564,
+        "uncertain_samples_upper_bound": 0,
+        "generation_seconds": 4488.973157175351,
+        "racer_version": "racer_frozen_v1",
+        "finished_at": "2026-10-29T08:34:46.894304+00:00"
+      },
+      "elapsed_seconds": 4509.661709121894,
+      "attempt_bounds": {
+        "completed_lower_bound": 23264,
+        "attempted_upper_bound": 23264,
+        "uncertain_inflight": 0,
+        "journals": 233,
+        "malformed_entries": [],
+        "note": "Journalled generation attempts only; unjournalled in-flight work is unknowable."
+      },
+      "finished_at": "2026-10-29T08:34:50.479222+00:00"
+    },
+    {
+      "id": "D_kcross_kcross_cma_full_s42",
+      "group": "D_kcross",
+      "task": "kcross",
+      "method": "cma_full",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": true,
+      "budget_samples": 22000,
+      "status": "succeeded",
+      "run_dir": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_D1/D_kcross_kcross_cma_full_s42",
+      "gpu": 1,
+      "gpu_uuid": "GPU-30ce8cdf-5e2f-f4d2-3011-17a29df6d474",
+      "started_at": "2026-10-29T07:19:41.023158+00:00",
+      "pid": 249688,
+      "summary": {
+        "status": "succeeded",
+        "method": "cma_full",
+        "ablation": "full",
+        "task": "kcross",
+        "seed": 42,
+        "stop_reason": "budget_exhausted",
+        "budget_samples": 22000,
+        "budget_used": 21600.0,
+        "best_dev": 0.45,
+        "best_alpha": [
+          -0.017807459106051138,
+          0.27742222421983376,
+          -0.1540842528105175,
+          0.1607769642111495,
+          -0.06471788158165093,
+          -0.16737120459511218,
+          -0.29764365421246636,
+          0.2225579855695926,
+          1.256373302307086,
+          -0.49690102588619417
+        ],
+        "best_candidate_id": 107,
+        "test_score": 0.408,
+        "kcross_filtered_test_score": 0.425531914893617,
+        "n_candidates": 108,
+        "anytime": [
+          {
+            "budget": 6600.0,
+            "best": 0.435
+          },
+          {
+            "budget": 13200.0,
+            "best": 0.445
+          },
+          {
+            "budget": 22000.0,
+            "best": 0.45
+          }
+        ],
+        "physical_samples": 23164,
+        "test_samples": 1564,
+        "uncertain_samples_upper_bound": 0,
+        "generation_seconds": 3922.5988161945716,
+        "racer_version": "racer_frozen_v1",
+        "finished_at": "2026-10-29T08:25:11.881597+00:00"
+      },
+      "elapsed_seconds": 3933.3566484809853,
+      "attempt_bounds": {
+        "completed_lower_bound": 23164,
+        "attempted_upper_bound": 23164,
+        "uncertain_inflight": 0,
+        "journals": 110,
+        "malformed_entries": [],
+        "note": "Journalled generation attempts only; unjournalled in-flight work is unknowable."
+      },
+      "finished_at": "2026-10-29T08:25:14.475427+00:00"
+    },
+    {
+      "id": "D_kcross_kcross_pso_box_s42",
+      "group": "D_kcross",
+      "task": "kcross",
+      "method": "pso_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": true,
+      "budget_samples": 22000,
+      "status": "succeeded",
+      "run_dir": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_D1/D_kcross_kcross_pso_box_s42",
+      "gpu": 1,
+      "gpu_uuid": "GPU-30ce8cdf-5e2f-f4d2-3011-17a29df6d474",
+      "started_at": "2026-10-29T08:25:14.855340+00:00",
+      "pid": 268394,
+      "summary": {
+        "status": "succeeded",
+        "method": "pso_box",
+        "ablation": "full",
+        "task": "kcross",
+        "seed": 42,
+        "stop_reason": "budget_exhausted",
+        "budget_samples": 22000,
+        "budget_used": 20000.0,
+        "best_dev": 0.44,
+        "best_alpha": [
+          0.08790967268984459,
+          0.05370473306817239,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.8583855942419829,
+          0.0
+        ],
+        "best_candidate_id": 60,
+        "test_score": 0.396,
+        "kcross_filtered_test_score": 0.4024822695035461,
+        "n_candidates": 100,
+        "anytime": [
+          {
+            "budget": 6600.0,
+            "best": 0.43
+          },
+          {
+            "budget": 13200.0,
+            "best": 0.44
+          },
+          {
+            "budget": 22000.0,
+            "best": 0.44
+          }
+        ],
+        "physical_samples": 21564,
+        "test_samples": 1564,
+        "uncertain_samples_upper_bound": 0,
+        "generation_seconds": 3524.958684365265,
+        "racer_version": "racer_frozen_v1",
+        "finished_at": "2026-10-29T09:24:05.664608+00:00"
+      },
+      "elapsed_seconds": 3533.7514922828414,
+      "attempt_bounds": {
+        "completed_lower_bound": 21564,
+        "attempted_upper_bound": 21564,
+        "uncertain_inflight": 0,
+        "journals": 102,
+        "malformed_entries": [],
+        "note": "Journalled generation attempts only; unjournalled in-flight work is unknowable."
+      },
+      "finished_at": "2026-10-29T09:24:08.716337+00:00"
+    },
+    {
+      "id": "D_kcross_kcross_random_box_s42",
+      "group": "D_kcross",
+      "task": "kcross",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": true,
+      "budget_samples": 22000,
+      "status": "succeeded",
+      "run_dir": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_D1/D_kcross_kcross_random_box_s42",
+      "gpu": 0,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9",
+      "started_at": "2026-10-29T08:34:50.966217+00:00",
+      "pid": 271393,
+      "summary": {
+        "status": "succeeded",
+        "method": "random_box",
+        "ablation": "full",
+        "task": "kcross",
+        "seed": 42,
+        "stop_reason": "budget_exhausted",
+        "budget_samples": 22000,
+        "budget_used": 22000.0,
+        "best_dev": 0.43,
+        "best_alpha": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "best_candidate_id": 8,
+        "test_score": 0.393,
+        "kcross_filtered_test_score": 0.39893617021276595,
+        "n_candidates": 110,
+        "anytime": [
+          {
+            "budget": 6600.0,
+            "best": 0.43
+          },
+          {
+            "budget": 13200.0,
+            "best": 0.43
+          },
+          {
+            "budget": 22000.0,
+            "best": 0.43
+          }
+        ],
+        "physical_samples": 23564,
+        "test_samples": 1564,
+        "uncertain_samples_upper_bound": 0,
+        "generation_seconds": 3715.237762515433,
+        "racer_version": "racer_frozen_v1",
+        "finished_at": "2026-10-29T09:37:26.128743+00:00"
+      },
+      "elapsed_seconds": 3758.44697179785,
+      "attempt_bounds": {
+        "completed_lower_bound": 23564,
+        "attempted_upper_bound": 23564,
+        "uncertain_inflight": 0,
+        "journals": 112,
+        "malformed_entries": [],
+        "note": "Journalled generation attempts only; unjournalled in-flight work is unknowable."
+      },
+      "finished_at": "2026-10-29T09:37:29.543044+00:00"
+    }
+  ]
+}

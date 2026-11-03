@@ -1,0 +1,14 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_campaign_v1_AC/snapshot.json",
+  "run": {
+    "id": "C_scale_gsm8k_pso_sum1_scalegrid_s42",
+    "group": "C_scale",
+    "task": "gsm8k",
+    "method": "pso_sum1_scalegrid",
+    "ablation": "full",
+    "seed": 42,
+    "run_test": true,
+    "budget_samples": 22000,
+    "status": "pending"
+  }
+}

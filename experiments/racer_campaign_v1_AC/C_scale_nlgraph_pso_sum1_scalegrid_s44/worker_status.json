@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-26T13:48:27.357439+00:00",
+  "method": "pso_sum1_scalegrid",
+  "ablation": "full",
+  "task": "nlgraph",
+  "seed": 44
+}

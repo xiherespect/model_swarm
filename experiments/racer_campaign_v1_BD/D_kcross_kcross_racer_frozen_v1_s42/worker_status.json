@@ -1,0 +1,14 @@
+{
+  "status": "failed",
+  "started_at": "2026-10-27T18:24:20.877159+00:00",
+  "method": "racer_frozen_v1",
+  "ablation": "full",
+  "task": "kcross",
+  "seed": 42,
+  "physical_samples": 21700,
+  "test_samples": 0,
+  "uncertain_samples_upper_bound": 1000,
+  "journal_completed_lower_bound": 21700,
+  "journal_attempted_upper_bound": 21700,
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/data/lvliping/merge_swarm/data/eval/kcross.json'"
+}
