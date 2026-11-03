@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "mmlu_pro",
+  "seed": 42,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 140,
+  "budget_used": 140.0,
+  "best_dev": 0.3142857142857143,
+  "best_alpha": [
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "best_candidate_id": 1,
+  "test_score": null,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 2,
+  "anytime": [
+    {
+      "budget": 42.0,
+      "best": null
+    },
+    {
+      "budget": 84.0,
+      "best": 0.2714285714285714
+    },
+    {
+      "budget": 140.0,
+      "best": 0.3142857142857143
+    }
+  ],
+  "physical_samples": 140,
+  "test_samples": 0,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 20.087263361085206,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-23T12:39:26.055632+00:00"
+}

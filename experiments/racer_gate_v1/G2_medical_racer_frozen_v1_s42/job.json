@@ -1,0 +1,12 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_gate_v1/snapshot.json",
+  "run": {
+    "id": "G2_medical_racer_frozen_v1_s42",
+    "task": "medical",
+    "method": "racer_frozen_v1",
+    "ablation": "full",
+    "seed": 42,
+    "run_test": false,
+    "budget_samples": 9600
+  }
+}

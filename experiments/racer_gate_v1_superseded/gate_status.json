@@ -1,0 +1,224 @@
+{
+  "status": "running",
+  "created_at": "2026-10-23T10:33:18.283032+00:00",
+  "gpu": 0,
+  "runs": [
+    {
+      "id": "G1_nlgraph_probe_s42",
+      "group": "G1",
+      "task": "nlgraph",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 400,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "succeeded",
+      "elapsed_seconds": 94.67539167171344,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_gsm8k_probe_s42",
+      "group": "G1",
+      "task": "gsm8k",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 400,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.2650704481638968,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_hellaswag_probe_s42",
+      "group": "G1",
+      "task": "hellaswag",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 400,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.3146738470532,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_mmlu_probe_s42",
+      "group": "G1",
+      "task": "mmlu",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 400,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.2653840808197856,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_mmlu_pro_probe_s42",
+      "group": "G1",
+      "task": "mmlu_pro",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 140,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.2653541420586407,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_truthfulqa_probe_s42",
+      "group": "G1",
+      "task": "truthfulqa",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 400,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.26520731300115585,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_medical_probe_s42",
+      "group": "G1",
+      "task": "medical",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 800,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.26424054289236665,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_science_probe_s42",
+      "group": "G1",
+      "task": "science",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 460,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.2646085862070322,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G1_culture_probe_s42",
+      "group": "G1",
+      "task": "culture",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 2000,
+      "gate_config_overrides": {
+        "init_size": 2
+      },
+      "status": "failed",
+      "elapsed_seconds": 0.26481646206229925,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G2_nlgraph_racer_frozen_v1_s42",
+      "group": "G2",
+      "task": "nlgraph",
+      "method": "racer_frozen_v1",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 4800,
+      "gate_config_overrides": {},
+      "status": "succeeded",
+      "elapsed_seconds": 820.496848647017,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G2_nlgraph_cma_full_s42",
+      "group": "G2",
+      "task": "nlgraph",
+      "method": "cma_full",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 4800,
+      "gate_config_overrides": {},
+      "status": "succeeded",
+      "elapsed_seconds": 819.2182198381051,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G2_nlgraph_pso_box_s42",
+      "group": "G2",
+      "task": "nlgraph",
+      "method": "pso_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 4800,
+      "gate_config_overrides": {},
+      "status": "succeeded",
+      "elapsed_seconds": 823.2837841948494,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G2_nlgraph_random_box_s42",
+      "group": "G2",
+      "task": "nlgraph",
+      "method": "random_box",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 4800,
+      "gate_config_overrides": {},
+      "status": "succeeded",
+      "elapsed_seconds": 1014.1949146771803,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    },
+    {
+      "id": "G2_gsm8k_racer_frozen_v1_s42",
+      "group": "G2",
+      "task": "gsm8k",
+      "method": "racer_frozen_v1",
+      "ablation": "full",
+      "seed": 42,
+      "run_test": false,
+      "budget_samples": 4800,
+      "gate_config_overrides": {},
+      "status": "succeeded",
+      "elapsed_seconds": 1878.4176040152088,
+      "gpu_uuid": "GPU-67da49eb-f8cf-1dc5-8003-29515d8d89c9"
+    }
+  ],
+  "failed": 17,
+  "error": "RuntimeError: GPU 0 busy: mem=1 util=2",
+  "resumed_at": "2026-10-23T11:02:42.091759+00:00"
+}

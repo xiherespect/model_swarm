@@ -1,0 +1,8 @@
+{
+  "status": "succeeded",
+  "started_at": "2026-10-23T16:12:25.232481+00:00",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "hellaswag",
+  "seed": 42
+}

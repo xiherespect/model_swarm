@@ -1,0 +1,47 @@
+{
+  "status": "succeeded",
+  "method": "random_box",
+  "ablation": "full",
+  "task": "culture",
+  "seed": 42,
+  "stop_reason": "budget_exhausted",
+  "budget_samples": 2000,
+  "budget_used": 2000.0,
+  "best_dev": 0.486258726899384,
+  "best_alpha": [
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "best_candidate_id": 0,
+  "test_score": null,
+  "kcross_filtered_test_score": null,
+  "n_candidates": 2,
+  "anytime": [
+    {
+      "budget": 600.0,
+      "best": null
+    },
+    {
+      "budget": 1200.0,
+      "best": 0.486258726899384
+    },
+    {
+      "budget": 2000.0,
+      "best": 0.486258726899384
+    }
+  ],
+  "physical_samples": 2000,
+  "test_samples": 0,
+  "uncertain_samples_upper_bound": 0,
+  "generation_seconds": 91.72172540891916,
+  "racer_version": "racer_frozen_v1",
+  "finished_at": "2026-10-23T12:43:55.125723+00:00"
+}

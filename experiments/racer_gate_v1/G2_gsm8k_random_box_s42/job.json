@@ -1,0 +1,12 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_gate_v1/snapshot.json",
+  "run": {
+    "id": "G2_gsm8k_random_box_s42",
+    "task": "gsm8k",
+    "method": "random_box",
+    "ablation": "full",
+    "seed": 42,
+    "run_test": false,
+    "budget_samples": 4800
+  }
+}

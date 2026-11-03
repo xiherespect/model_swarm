@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "started_at": "2026-10-23T11:04:21.454088+00:00",
+  "error": "RuntimeError: campaign snapshot identity mismatch"
+}

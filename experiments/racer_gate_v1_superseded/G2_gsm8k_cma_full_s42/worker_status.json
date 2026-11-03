@@ -1,0 +1,8 @@
+{
+  "status": "loading",
+  "started_at": "2026-10-23T12:06:20.613245+00:00",
+  "method": "cma_full",
+  "ablation": "full",
+  "task": "gsm8k",
+  "seed": 42
+}

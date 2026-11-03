@@ -1,0 +1,60 @@
+{
+  "method": "random_box",
+  "ablation": "full",
+  "budget_samples": 460,
+  "budget_used": 460.0,
+  "best_seen_id": 1,
+  "best_seen_score": 0.3513859275053305,
+  "candidates": [
+    {
+      "id": 0,
+      "alpha": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source": "init"
+    },
+    {
+      "id": 1,
+      "alpha": [
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source": "init"
+    }
+  ],
+  "events": [
+    {
+      "kind": "observe",
+      "candidate_id": 0,
+      "fidelity": "full",
+      "rung": null,
+      "samples": 230.0,
+      "score": 0.31918735891647854
+    },
+    {
+      "kind": "observe",
+      "candidate_id": 1,
+      "fidelity": "full",
+      "rung": null,
+      "samples": 230.0,
+      "score": 0.3513859275053305
+    }
+  ]
+}

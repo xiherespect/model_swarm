@@ -1,0 +1,12 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_gate_v1/snapshot.json",
+  "run": {
+    "id": "G2_nlgraph_cma_full_s42",
+    "task": "nlgraph",
+    "method": "cma_full",
+    "ablation": "full",
+    "seed": 42,
+    "run_test": false,
+    "budget_samples": 4800
+  }
+}

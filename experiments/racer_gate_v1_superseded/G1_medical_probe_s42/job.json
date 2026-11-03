@@ -1,0 +1,12 @@
+{
+  "snapshot": "/data/lvliping/merge_swarm/experiments/racer_gate_v1/snapshot_G1_medical_probe_s42.json",
+  "run": {
+    "id": "G1_medical_probe_s42",
+    "task": "medical",
+    "method": "random_box",
+    "ablation": "full",
+    "seed": 42,
+    "run_test": false,
+    "budget_samples": 800
+  }
+}
