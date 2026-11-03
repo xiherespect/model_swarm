@@ -19,6 +19,21 @@ other_checkpoint/*
 # Archived shell source stays visible; only generated probe assets are ignored.
 !/scripts/legacy/*.sh
 /artifacts/legacy_probes/
+
+# RACER frozen campaigns: identity/ledger layer and test evidence archives are
+# tracked; regenerable bulk (per-candidate intermediate score caches, search
+# checkpoints, materialized adapter tensors) stays on disk only. Same frozen
+# identity + seed re-materializes the ignored layer deterministically.
+experiments/racer_campaign_v1_*/**/oracle/results/*/
+!experiments/racer_campaign_v1_*/**/oracle/results/test_*/
+experiments/racer_campaign_v1_*/**/oracle/adapters/
+experiments/racer_campaign_v1_*/**/checkpoint.json
+experiments/racer_gate_v1*/**/oracle/results/*/
+!experiments/racer_gate_v1*/**/oracle/results/test_*/
+experiments/racer_gate_v1*/**/oracle/adapters/
+experiments/racer_gate_v1*/**/checkpoint.json
+# Scheduler id lists are tracked evidence of the instance split.
+!experiments/campaign_instance*.txt
 # Keep run ledgers/raw records visible, but do not accidentally add model tensors.
 /runs/**/adapter/*.safetensors
 *.yml
