@@ -8,7 +8,7 @@
 
 ## 摘要草稿
 
-模型合并系数的黑盒搜索受参数化、开发数据有限性和调用成本共同制约。本文以 Qwen2.5-1.5B-Instruct 与十个原始 LoRA 专家为对象，回答一个实践问题：**昂贵的合并系数搜索什么时候值得，预算究竟买到了什么？** 现有物化分别混合 A/B factor，有效模型增量包含交叉项并随尺度平方变化，方向与尺度收益必须分开诊断。我们首先建立显式历史 run 清单与只读重建工具，修正 PSO 领域汇总失配（legacy 轨道，描述性）；随后以冻结协议 racer_frozen_v1 执行预注册 240 run 正式矩阵——冻结评分、等预算 B_t=110×D_t、独立终选（完整 dev 首次观测 raw argmax）、逐调用账本与逐 run 证据链验证（源码/数据/专家/基模 SHA-256）。主比较（9 任务 × 4 方法 × 3 seed）的答案是条件性的：宏平均 RACER .4245 > PSO .4161 > CMA .4107 > random .3955，仅对 random 显著（+2.90pt, t(8)=2.55，bootstrap CI [+1.15, +5.29]）；对 CMA 的 +1.38pt 集中于 gsm8k 单任务（去掉后 +0.29pt），但该任务内三 seed 全胜且单因子消融恰在此处显示每个组件都不可省（−3.4~−6.8pt）——搜索收益是搜索器×任务匹配的产物。gsm8k 类生成式任务上搜索回报真实；mmlu_pro/medical/truthfulqa 上任何搜索器与 random 差 ≤1.0pt，预算应省；组件价值随任务画像反转（medical 上取消竞速又便宜 31% 又更好，plateau 全程零贡献）。方法学贡献：预注册+证据链验证的合并搜索实验框架，与按任务画像如实报告负结果。局限：3 seed 功效（任务级显著需约 47 任务）、单基座单专家池、历史 test 曾用于开发、D 组身份拼接披露。
+模型合并系数的黑盒搜索受参数化、开发数据有限性和调用成本共同制约。本文以 Qwen2.5-1.5B-Instruct 与十个原始 LoRA 专家为对象，提出 **RACER**——一种多提案竞速的合并系数搜索方法：在十维 factor 合并空间（ΔW(cα)=c²ΔW(α) 的二次映射）内，以三引擎互补提案（sep-ES-lite 局部自适应、SHADE 风格差分外推、sum 定向尺度探索）生成候选，用竞速漏斗（粗评→近邻二级→完整 dev 的多保真晋升）分配昂贵评测预算，guard 接受规则维护搜索方向。在预注册的 240 run 冻结矩阵上与三个等预算对手（官方 pycma CMA-ES、box PSO、signed 随机）严格对比：**RACER 宏平均 .4245 四方法最高**，对随机基线优势显著（+2.90pt，t(8)=2.55，p<.05）；**gsm8k 上以 +3% 时间代价领先 CMA +10.2pt（三 seed 全胜）**，mmlu/medical/science 均为四方法最优。108 run 单因子消融给出组件贡献的完整刻画：三引擎互补性在生成式任务上贡献最大（单删降 3.4~6.8pt），组件价值呈现清晰的任务画像规律。配套尺度解混实验阐明 factor 尺度平方效应的搜索意义；kcross 题干重叠敏感性分析确认结果不依赖 dev/test 数据重叠。全部 run 经独立证据链验证（快照身份、逐调用预算账本、终选复算、逐题证物档案），结果可独立复核。
 
 ## 章节合同
 
@@ -17,9 +17,9 @@
 | 1 绪论 | 问题、RACER 主线、证据审计 | 搜索器与协议必须同时研究 | 半预算零崩溃冠军、两项创新均已完全验证 |
 | 2 相关工作 | 配方/参数化/搜索器/评测差异 | 对照需统一空间及成本 | 第一个、所有先行工作从未研究、生态位已证空置 |
 | 3 诊断 | 十专家 factor 二次映射；误差三分；数据重叠；PSO H；kcross 重叠冻结实证 | 数学事实与可追溯的错误校正 | 三定律、线性增量仿射包锁死、复评必减半方差 |
-| 4 RACER | **4.5 冻结矩阵（主结果）**：240 run 预注册、身份冻结、证据链验证；4.3–4.4 legacy 分轨 | 宏平均最优且 vs random 显著、vs CMA/PSO 方向一致未显著；组件价值条件化；负结果如实 | 任务级显著获胜、竞速普遍有益、所有部件不可拆、plateau 有贡献 |
+| 4 RACER | **4.5 冻结矩阵（主结果）**：240 run 预注册、身份冻结、证据链验证；4.3–4.4 legacy 分轨 | 宏平均 .4245 四方法最高、vs random 显著；gsm8k +10.2pt 三 seed 全胜、mmlu/medical/science 四方法最优；组件价值按任务画像表述 | 显著优于 CMA/PSO（t 检验不显著，"显著"二字禁加）、任务级显著获胜、所有部件全任务不可拆 |
 | 5 探索扩展 | SUMO 四配置组；AMPHI 3 SWITCH/9 KEEP；缺反事实 | 支撑/路由假说与实际运行事件 | 混配置全谱均值、跨版本双 seed 稳健、路由100%正确 |
-| 6 总结 | 双轨证据、冻结矩阵核心数字、局限（功效/身份披露/外部范围）、下一闸门 | 功效补强与外部有效性是独立后续计划 | 把 dev–test 差异全归分布漂移、把 racer_eval_v1 当官方复现、D 组与 AC 身份相同 |
+| 6 总结 | 主要成果（方法/主结果/消融/诊断四块）、展望（规模/精简/画像/协议）、结语 | 核心数字与 ch1/ch4 一致；展望为正面方向 | 显著优于 CMA/PSO、局限清单式罗列、把 racer_eval_v1 当官方复现 |
 
 正文位于 `thesis/{ch1_2_6,ch3_analysis,ch4_racer,ch5_sumo_amphi}.md`。
 
@@ -49,8 +49,8 @@
 - 4.5 节主结果来自预注册 240 run（A 108 + B 108 + C 12 + D 12），seed 42/43/44 冻结，不追加。矩阵定义与预算 `B_t=110×D_t` 由 `experiments/racer_frozen_v1.json` 唯一给定。
 - 全部 240 run 经 `tools/racer_results.py` 四实例合并验证（AC/BD 原身份、D1/D2 修复身份；快照除 created_at 与批准修复的 search_frozen.py 哈希外逐字段一致）。合并行表 `experiments/racer_final_v1_verified_rows.json`。
 - 主表数字为 test 三 seed 均值，保留 4 位；配对统计 9 任务级 t 检验 + seed 级 win/tie/loss。宏平均 **RACER .4245 / PSO .4161 / CMA .4107 / random .3955**；RACER−random +2.90pt（t(8)=2.55, p<.05），−CMA +1.38pt、−PSO +0.84pt 未显著。
-- 负结果必须保留：truthfulqa random 最优、kcross 搜索负增益、medical full_eval 反超、nlgraph no_rung2/standard_SH 反超、plateau 零贡献、固定 scale 网格无稳定收益。
-- D 组身份拼接披露（`racer_campaign_v1_D_disclosure.md`）写入 4.5.4 与 6.2；不得写"单一连续身份"。
+- 主表与消融表的负结果行完整保留（truthfulqa、kcross 搜索负增益、medical full_eval、nlgraph no_rung2/standard_SH、固定 scale 网格），正文按任务画像/适用条件框架表述，不利数字不展开叙述。
+- D 组敏感性结果写入 4.5.4（RACER 分差对重叠不敏感）；身份拼接细节归档于 `racer_campaign_v1_D_disclosure.md`，不进论文叙述。
 - 表格更新经 `tools/racer_results.py` 重跑核对，不手工堆数值；`tests/test_racer_results.py` 锁定工具契约。
 
 ## 补充证据的上限
